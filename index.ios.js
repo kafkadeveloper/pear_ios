@@ -11,7 +11,6 @@ var {
   Text,
   TextInput,
   TouchableHighlight,
-  StatusBarIOS,
   ScrollView,
   DeviceEventEmitter,
   Dimensions,
@@ -245,6 +244,7 @@ class Pear extends Component {
     var callOrHangup = this.state.calling ? 'Hang up' : 'Call';
 
     return (
+      // if loading takes too long, add a loading screen
       <ScrollView contentContainerStyle={styles.container, {height: this.state.visibleHeight}}
                   scrollEnabled={false}>
         <View style={styles.topContainer}>
@@ -264,7 +264,7 @@ class Pear extends Component {
         </View>
         <View style={styles.callButtonContainer}>
           <TouchableHighlight style={styles.callButton}
-                              underlayColor="#ffffff"
+                              underlayColor="#e0e0e0"
                               onPress={this.onCallButtonPressed.bind(this)}>
             <Text style={styles.callButtonText}>{callOrHangup}</Text>
           </TouchableHighlight>
@@ -282,9 +282,9 @@ class Pear extends Component {
       // UI change
       this.setState({calling: false});
     } else {
-      var roomNameVal = this.state.hashTagText.toLowerCase().replace(/@|#| /g, '').slice(0, 19);
+      var roomNameVal = this.state.hashTagText.toLowerCase().replace(/@|#| /g, '').slice(0, 21);
 
-      socket = io('https://10.1.104.214:8000/api/webrtc', { query: 'secret=abcde', forceNew: true });
+      socket = io('https://0.0.0.0:8000/api/webrtc', { query: 'secret=abcde', forceNew: true });
       listen(roomNameVal);
 
       // UI change
@@ -292,12 +292,9 @@ class Pear extends Component {
     }
   }
 
+  /* Text input callbacks start */
   onHashTagTextFocused() {
     this.setState({hashTagText: '#'});
-  }
-
-  onHashTagTextEndEditing() {
-    this.setState({hashTagText: this.state.hashTagText.toLowerCase().replace(/@| /g, '')});
   }
 
   onHashTagTextChanged(event) {
@@ -309,30 +306,44 @@ class Pear extends Component {
       this.setState({hashTagText: event.nativeEvent.text});
     }
   }
+
+  onHashTagTextEndEditing() {
+    this.setState({hashTagText: this.state.hashTagText.toLowerCase().replace(/@| /g, '')});
+  }
+  /* Text input callbacks end */
 }
+
+/* Color notes
+Original Red : fe5351
+Original Blue: 113951
+New Red : ff6169
+New Blue: 26476b
+*/
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
-    backgroundColor: '#fe5351',
+    backgroundColor: 'white',
   },
   topContainer: {
     flex: 0.60,
-    backgroundColor: '#fe5351',
+    backgroundColor: '#ff6169',
   },
   hashTagContainer: {
     flex: 0.1,
     justifyContent: 'center',
-    backgroundColor: '#fe5351',
+    backgroundColor: '#ff6169',
   },
   hashTagInput: {
     width: 260,
     height: 40,
     paddingLeft: 15,
     paddingRight: 15,
-    backgroundColor: '#fe8785',
-    borderRadius: 18,
+    backgroundColor: '#ff6169',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'white',
     color: 'white',
     fontSize: 20,
     alignSelf: 'center',
@@ -340,26 +351,25 @@ const styles = StyleSheet.create({
   },
   divideContainer: {
     flex: 0.05,
-    backgroundColor: '#fe5351',
+    backgroundColor: '#ff6169',
   },
   callButtonContainer: {
     flex: 0.25,
     alignItems: 'center',
     justifyContent: 'flex-start',
-    backgroundColor: '#fe5351',
+    backgroundColor: '#ff6169',
   },
   callButton: {
     height: 90,
     width: 90,
     backgroundColor: 'white',
-    borderWidth: 0,
     borderRadius: 45,
     alignItems: 'center',
     justifyContent: 'center',
   },
   callButtonText: {
     fontSize: 18,
-    color: '#fe5351',
+    color: '#ff6169',
   },
 });
 
