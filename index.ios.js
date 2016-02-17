@@ -8,6 +8,7 @@ var {
   Component,
   StyleSheet,
   View,
+  Image,
   Text,
   TextInput,
   TouchableHighlight,
@@ -214,6 +215,8 @@ class Pear extends Component {
       calling: false,
       remoteSrc: null,
       hashTagText: '#',
+      micMuted: false,
+      speakerOn: false,
     }
   }
 
@@ -241,15 +244,22 @@ class Pear extends Component {
   }
 
   render() {
-    var callOrHangup = this.state.calling ? 'Hang up' : 'Call';
+    // add a loading screen?
+    if (this.state.calling) {
+      return this.renderHangupView();
+    } else {
+      return this.renderCallView();
+    }
+  }
 
+  /* Render methods */
+  renderCallView() {
     return (
-      // if loading takes too long, add a loading screen
       <ScrollView contentContainerStyle={styles.container, {height: this.state.visibleHeight}}
                   scrollEnabled={false}>
-        <View style={styles.topContainer}>
+        <View style={styles.callTopContainer}>
         </View>
-        <View style={styles.hashTagContainer}>
+        <View style={styles.callMiddleContainer}>
           <TextInput style={styles.hashTagInput}
                      value={this.state.hashTagText}
                      onChange={this.onHashTagTextChanged.bind(this)}
@@ -260,13 +270,13 @@ class Pear extends Component {
                      maxLength={21}
                      keyboardType='ascii-capable' />
         </View>
-        <View style={styles.divideContainer}>
+        <View style={styles.callDivideContainer}>
         </View>
         <View style={styles.callButtonContainer}>
-          <TouchableHighlight style={styles.callButton}
+          <TouchableHighlight style={styles.circleButton}
                               underlayColor="#e0e0e0"
                               onPress={this.onCallButtonPressed.bind(this)}>
-            <Text style={styles.callButtonText}>{callOrHangup}</Text>
+            <Text style={styles.callButtonText}>Call</Text>
           </TouchableHighlight>
           <RTCView streamURL={this.state.remoteSrc}>
           </RTCView>
@@ -275,22 +285,106 @@ class Pear extends Component {
     );
   }
 
-  onCallButtonPressed() {
-    if (this.state.calling) {
-      end();
+  renderHangupView() {
+    return (
+      <ScrollView contentContainerStyle={styles.container, {height: this.state.visibleHeight}}
+                  scrollEnabled={false}>
+        <View style={styles.hangupTopContainer}>
+          <View style={styles.callingTextContainer}>
+            <Text style={styles.callingText}>{this.state.hashTagText}</Text>
+          </View>
+        </View>
+        <View style={styles.hangupMiddleContainer}>
+          {this.renderMuteButton()}
+          {this.renderSpeakerButton()}
+        </View>
+        <View style={styles.hangupDivideContainer}>
+        </View>
+        <View style={styles.hangupButtonContainer}>
+          <TouchableHighlight style={styles.circleButton}
+                              underlayColor="#e0e0e0"
+                              onPress={this.onHangupButtonPressed.bind(this)}>
+            <Text style={styles.hangupButtonText}>Hang up</Text>
+          </TouchableHighlight>
+          <RTCView streamURL={this.state.remoteSrc}>
+          </RTCView>
+        </View>
+      </ScrollView>
+    );
+  } 
 
-      // UI change
-      this.setState({calling: false});
+  renderMuteButton() {
+    if (this.state.micMuted) {
+      return (
+        <TouchableHighlight style={styles.audioControlButtonOn}
+                            underlayColor="#e0e0e0"
+                            onPress={this.onMuteButtonPressed.bind(this)}>
+          <Image source={require('image!muteOn')} style={{width: 17, height: 20,}} />
+        </TouchableHighlight>
+      );
     } else {
-      var roomNameVal = this.state.hashTagText.toLowerCase().replace(/@|#| /g, '').slice(0, 21);
-
-      socket = io('https://0.0.0.0:8000/api/webrtc', { query: 'secret=abcde', forceNew: true });
-      listen(roomNameVal);
-
-      // UI change
-      this.setState({calling: true});
+      return (
+        <TouchableHighlight style={styles.audioControlButtonOff}
+                            underlayColor="#e0e0e0"
+                            onPress={this.onMuteButtonPressed.bind(this)}>
+          <Image source={require('image!muteOff')} style={{width: 17, height: 20,}} />
+        </TouchableHighlight>
+      );
     }
   }
+
+  renderSpeakerButton() {
+    if (this.state.speakerOn) {
+      return (
+        <TouchableHighlight style={styles.audioControlButtonOn}
+                            underlayColor="#e0e0e0"
+                            onPress={this.onSpeakerButtonPressed.bind(this)}>
+          <Image source={require('image!speakerOn')} style={{width: 20, height: 20,}} />
+        </TouchableHighlight>
+      );
+    } else {
+      return (
+        <TouchableHighlight style={styles.audioControlButtonOff}
+                            underlayColor="#e0e0e0"
+                            onPress={this.onSpeakerButtonPressed.bind(this)}>
+          <Image source={require('image!speakerOff')} style={{width: 20, height: 20,}} />
+        </TouchableHighlight>
+      );
+    }
+  } /* Render methods end */
+
+  /* Button event */
+  onCallButtonPressed() {
+    var roomNameVal = this.state.hashTagText.toLowerCase().replace(/@|#| /g, '').slice(0, 21);
+    /* Connect to server to peer */
+    // socket = io('https://0.0.0.0:8000/api/webrtc', { query: 'secret=abcde', forceNew: true });
+    // listen(roomNameVal);
+    /* UI change */
+    this.setState({calling: true});
+  }
+
+  onHangupButtonPressed() {
+    /* Disconnect from server and peer */
+    // end();
+    /* UI change */
+    this.setState({calling: false});
+  } 
+
+  onMuteButtonPressed() {
+    if (this.state.micMuted) {
+      this.setState({micMuted: false});
+    } else {
+      this.setState({micMuted: true});
+    }
+  }
+
+  onSpeakerButtonPressed() {
+    if (this.state.speakerOn) {
+      this.setState({speakerOn: false});
+    } else {
+      this.setState({speakerOn: true});
+    }
+  } /* Button event end */
 
   /* Text input callbacks start */
   onHashTagTextFocused() {
@@ -309,16 +403,8 @@ class Pear extends Component {
 
   onHashTagTextEndEditing() {
     this.setState({hashTagText: this.state.hashTagText.toLowerCase().replace(/@| /g, '')});
-  }
-  /* Text input callbacks end */
+  } /* Text input callbacks end */
 }
-
-/* Color notes
-Original Red : fe5351
-Original Blue: 113951
-New Red : ff6169
-New Blue: 26476b
-*/
 
 const styles = StyleSheet.create({
   container: {
@@ -326,17 +412,42 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     backgroundColor: 'white',
   },
-  topContainer: {
+  callTopContainer: {
     flex: 0.60,
     backgroundColor: '#ff6169',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  hashTagContainer: {
+  hangupTopContainer: {
+    flex: 0.57,
+    backgroundColor: '#26476b',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  callingTextContainer: {
+    flex: 0.5,
+    justifyContent: 'center',
+  },
+  callingText: {
+    fontSize: 20,
+    color: 'white',
+  },
+  callMiddleContainer: {
     flex: 0.1,
     justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: '#ff6169',
+    flexDirection: 'column',
+  },
+  hangupMiddleContainer: {
+    flex: 0.13,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#26476b',
+    flexDirection: 'row',
   },
   hashTagInput: {
-    width: 260,
+    width: 500,
     height: 40,
     paddingLeft: 15,
     paddingRight: 15,
@@ -346,9 +457,13 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     textAlign: 'center',
   },
-  divideContainer: {
+  callDivideContainer: {
     flex: 0.05,
     backgroundColor: '#ff6169',
+  },
+  hangupDivideContainer: {
+    flex: 0.05,
+    backgroundColor: '#26476b',
   },
   callButtonContainer: {
     flex: 0.25,
@@ -356,17 +471,50 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     backgroundColor: '#ff6169',
   },
-  callButton: {
+  hangupButtonContainer: {
+    flex: 0.25,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    backgroundColor: '#26476b',
+  },
+  circleButton: {
     height: 90,
     width: 90,
-    backgroundColor: 'white',
     borderRadius: 45,
+    backgroundColor: 'white',
     alignItems: 'center',
     justifyContent: 'center',
   },
   callButtonText: {
     fontSize: 18,
     color: '#ff6169',
+  },
+  hangupButtonText: {
+    fontSize: 18,
+    color: '#26476b',
+  },
+  audioControlButtonOff: {
+    height: 60,
+    width: 60,
+    borderRadius: 45,
+    backgroundColor: '#26476b',
+    borderWidth: 1,
+    borderColor: 'white',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 30,
+    marginLeft: 30,
+  },
+  audioControlButtonOn: {
+    height: 60,
+    width: 60,
+    borderRadius: 45,
+    backgroundColor: 'white',
+    borderColor: 'white',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 30,
+    marginLeft: 30,
   },
 });
 
