@@ -8,11 +8,12 @@ var {
   Component,
   StyleSheet,
   View,
-  Image,
+  ScrollView,
   Text,
   TextInput,
   TouchableHighlight,
-  ScrollView,
+  Image,
+  AsyncStorage, // TODO first time opening, location, 
   DeviceEventEmitter,
   Dimensions,
 } = React;
@@ -142,7 +143,7 @@ function end() {
 function peerConnected() {
   RTCSetting.setAudioOutput('handset');
   RTCSetting.setKeepScreenOn(false);
-  RTCSetting.setProximityScreenOff(false);
+  RTCSetting.setProximityScreenOff(true);
 }
 
 function logError(error) {
@@ -151,7 +152,6 @@ function logError(error) {
 
 function listen(roomNameVal) {
   // is this the right way to do this?
-  // TODO if someone gets error after joining, kick other out
   socket.on('connect_error', data => {
     console.log('connect error', data);
     end();
@@ -217,6 +217,9 @@ class Pear extends Component {
       hashTagText: '#',
       micMuted: false,
       speakerOn: false,
+      callStartTime: null,
+      callDeltaTime: '00:00',
+      callInterval: null,
     }
   }
 
@@ -293,6 +296,9 @@ class Pear extends Component {
           <View style={styles.callingTextContainer}>
             <Text style={styles.callingText}>{this.state.hashTagText}</Text>
           </View>
+          <View style={styles.deltaTextContainer}>
+            <Text style={styles.deltaText}>{this.state.callDeltaTime}</Text>
+          </View>
         </View>
         <View style={styles.hangupMiddleContainer}>
           {this.renderMuteButton()}
@@ -360,14 +366,27 @@ class Pear extends Component {
     // socket = io('https://0.0.0.0:8000/api/webrtc', { query: 'secret=abcde', forceNew: true });
     // listen(roomNameVal);
     /* UI change */
-    this.setState({calling: true});
+    this.setState({});
+    this.setState({
+      callStartTime: new Date(),
+      callInterval: setInterval(() => { 
+        var mss = Math.floor((new Date() - this.state.callStartTime) / 1000);
+        var secs = mss % 60;
+        var minutes = Math.floor(mss / 60);
+        secs > 9 ? secs = secs.toString() : secs = '0' + secs.toString();
+        minutes > 9 ? minutes = minutes.toString() : minutes = '0' + minutes.toString();
+        this.setState({callDeltaTime: minutes + ':' + secs});
+      }, 1000),
+      calling: true
+    });
   }
 
   onHangupButtonPressed() {
     /* Disconnect from server and peer */
     // end();
     /* UI change */
-    this.setState({calling: false});
+    clearInterval(this.state.callInterval);
+    this.setState({calling: false, callDeltaTime: '00:00'});
   } 
 
   onMuteButtonPressed() {
@@ -380,8 +399,10 @@ class Pear extends Component {
 
   onSpeakerButtonPressed() {
     if (this.state.speakerOn) {
+      RTCSetting.setAudioOutput('handset');
       this.setState({speakerOn: false});
     } else {
+      RTCSetting.setAudioOutput('speaker');
       this.setState({speakerOn: true});
     }
   } /* Button event end */
@@ -425,11 +446,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   callingTextContainer: {
-    flex: 0.5,
+    flex: 0.4,
     justifyContent: 'center',
   },
   callingText: {
-    fontSize: 20,
+    fontSize: 18,
+    color: 'white',
+  },
+  deltaTextContainer: {
+    flex: 0.7,
+    justifyContent: 'flex-start',
+  },
+  deltaText: {
+    fontSize: 32,
     color: 'white',
   },
   callMiddleContainer: {
