@@ -1,5 +1,11 @@
 'use strict';
 
+var REV = '20'
+var STORAGE_FRESH = '@PearStorage:fresh' + REV;
+var STORAGE_MIC =     '@PearStorage:mic' + REV;
+var STORAGE_LOC =     '@PearStorage:loc' + REV;
+var STORAGE_UPT =     '@PearStorage:upt' + REV;
+
 var DeviceInfo = require('react-native-device-info');
 
 var React = require('react-native');
@@ -13,7 +19,7 @@ var {
   TextInput,
   TouchableHighlight,
   Image,
-  AsyncStorage, // TODO first time opening, location, 
+  AsyncStorage,
   DeviceEventEmitter,
   Dimensions,
 } = React;
@@ -41,12 +47,14 @@ var component;
 function getLocalStream(callback) {
   var constraints = {video: false, audio: true};
   navigator.getUserMedia(constraints, stream => {
-    /* getUserMediaSuccess */
-    callback(stream);
-  }, /* get UserMediaFail */  logError);
+    console.log('getUserMediaSuccess');
+     /* getUserMediaSuccess */ localStream = stream;
+                               callback();
+  }, /* get UserMediaFail  */  logError);
 }
 
 function join(roomId) {
+  console.log('joinRoom');
   socket.emit('join', roomId, socketIds => {
     for (var i in socketIds) {
       createPC(socketIds[i], true);
@@ -88,7 +96,6 @@ function createPC(socketId, isOffer) {
   };
   pc.onaddstream = event => {
     console.log('onaddstream', event.stream);
-    peerConnected();
     // set remote audio source
     component.setState({remoteSrc: event.stream.toURL()});
   };
@@ -126,24 +133,22 @@ function exchange(data) {
 }
 
 function end() {
-  // Disconnect from server
+  /* Disconnect from server */
   console.log('end');
   socket.disconnect();
 
-  // close peer connection and delete them
+  /* Close peer connection and delete them */
   for (var socketId in pcPeers) {
     pcPeers[socketId].close();
     delete pcPeers[socketId];
   }
 
-  // UI change
-  component.setState({calling: false});
-}
+  /* UI change */
+  clearInterval(component.state.callInterval);
+  component.setState({calling: false, callDeltaTime: '00:00', remoteSrc:null});
 
-function peerConnected() {
-  RTCSetting.setAudioOutput('handset');
-  RTCSetting.setKeepScreenOn(false);
-  RTCSetting.setProximityScreenOff(true);
+  /* Hangup setting */
+  RTCSetting.setProximityScreenOff(false);
 }
 
 function logError(error) {
@@ -159,11 +164,21 @@ function listen(roomNameVal) {
 
   socket.on('connect', data => {
     console.log('connect');
+
+    /* Call settings */
+    RTCSetting.setAudioOutput('handset');
+    RTCSetting.setKeepScreenOn(false);
+    RTCSetting.setProximityScreenOff(true);
+
+    /* getLocalStream and join */
     getLocalStream(() => {
-      var id = makeRoomId();
-      join({name: roomNameVal, 
-            id: roomNameVal + '@' + id, 
-            device: component.state.deviceInfo});
+      // var id = makeRoomId();
+      // join({name: roomNameVal, 
+      //       id: roomNameVal + '@' + id, 
+      //       device: component.state.deviceInfo,
+      //       loc: component.state.loc});
+      console.log(component.state.deviceInfo + ' @' + component.state.loc);
+      join(component.state.hashTagText.replace(/#/g, '')); // TEST
     });
   });
 
@@ -181,20 +196,25 @@ function listen(roomNameVal) {
 
 function getDeviceInfo() {
   return  DeviceInfo.getUniqueID() + '@' +
-          DeviceInfo.getModel() + '@' +
+          DeviceInfo.getModel().split(' ').join('_') + '@' +
           DeviceInfo.getSystemVersion() + '@' +
           DeviceInfo.getReadableVersion() + '@' +
           DeviceInfo.getDeviceLocale();
 }
 
 function getLoc(callback) {
-  // run this 1 hour and update country code. 720 connections
   // TODO error handling
   var url = 'http://ipinfo.io/country';
+  // var response = await fetch(url);
+  // return response.text().trim();
   fetch(url).then(res => {
     return res.text();
   }).then(body => {
-    callback(body.trim());
+    if (body.trim().length > 5) {
+      callback();
+    } else {
+      callback(body.trim());
+    }
   });
 }
 
@@ -211,12 +231,19 @@ class Pear extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      fresh: false,
+      micPermission: 'YES',
+      loc: null,
+
       visibleHeight: Dimensions.get('window').height,
+
       calling: false,
-      remoteSrc: null,
       hashTagText: '#',
+      remoteSrc: null,
+
       micMuted: false,
       speakerOn: false,
+
       callStartTime: null,
       callDeltaTime: '00:00',
       callInterval: null,
@@ -226,28 +253,103 @@ class Pear extends Component {
   componentDidMount() {
     component = this;
     this.state.deviceInfo = getDeviceInfo();
+    this._checkFreshAndMicState().done;
+    this._checkAndUpdateUptAndLocState().done;
     DeviceEventEmitter.addListener('keyboardWillShow', this.keyboardWillShow.bind(this));
     DeviceEventEmitter.addListener('keyboardWillHide', this.keyboardWillHide.bind(this));
   }
 
-  keyboardWillShow(e) {
-    if (this.state.visibleHeight === 736) {           // iPhone 6 plus, 6s plus
+  /* Async storage methods */
+  async _checkFreshAndMicState() {
+    console.log('_checkFreshAndMicState');
+    try {
+      var freshValue = await AsyncStorage.getItem(STORAGE_FRESH);
+      var micValue = await AsyncStorage.getItem(STORAGE_MIC);
+      /* First-ever loading */
+      if (!freshValue) {
+        this.setState({fresh: true, micPermission: 'NO'});
+        await AsyncStorage.setItem(STORAGE_FRESH, new Date());
+        await AsyncStorage.setItem(STORAGE_MIC, 'NO');
+      } else {
+        /* Subsequent loading */
+        if (this.state.micPermission !== micValue) {
+          this.setState({micPermission: micValue});
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
-    } else if (this.state.visibleHeight === 667) {    // iPhone 6, 6s
+  async _checkAndUpdateUptAndLocState() {
+    console.log('_checkAndUpdateUptAndLocState');
+    try {
+      var uptValue = await AsyncStorage.getItem(STORAGE_UPT);
+      if ((new Date() - new Date(uptValue)) > 3600000) {
+        console.log('update loc state');
+        await getLoc(currLoc => {
+          if (currLoc) {
+            var currTime = new Date();
+            AsyncStorage.setItem(STORAGE_LOC, currLoc);
+            AsyncStorage.setItem(STORAGE_UPT, currTime);
+            if (this.state.loc !== currLoc) {
+              this.setState({loc: currLoc});
+            }
+          }
+        });
+      } else {
+        if (!this.state.loc) {
+          console.log('retrieve loc state');
+          var locValue = await AsyncStorage.getItem(STORAGE_LOC);
+          this.setState({loc: locValue});
+        } else {
+          console.log('loc state already available');
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async _updateMicState() {
+    console.log('_updateMicState');
+    try {
+      await AsyncStorage.setItem(STORAGE_MIC, 'YES');
+      this.setState({micPermission: 'YES'});
+    } catch (error) {
+      console.log(error);
+    }
+  }  /* Async storage methods end */
+
+  /* Keyboard event responder */
+  keyboardWillShow(e) {
+    if (this.state.visibleHeight === 667) {           // iPhone 6, 6s
       this.setState({visibleHeight: 667 - 20});
     } else if (this.state.visibleHeight === 568) {    // iPhone 5, 5s
       this.setState({visibleHeight: 568 - 70});
-    } else {                                          // iPhone 4, 4s
+    } else if (this.state.visibleHeight === 480) {    // iPhone 4, 4s
       this.setState({visibleHeight: 480 - 120}); 
-    }
+    } /* else: 736: iPhone 6 plus, 6s plus */
   }
 
   keyboardWillHide(e) {
     this.setState({visibleHeight: Dimensions.get('window').height});
-  }
+  }  /* Keyboard event responders */
 
   render() {
-    // add a loading screen?
+    /* Loading screen */
+    // if (this.state.loading) {
+    //   return this.renderLoadingView();
+    // }
+    /* Welcome screen */
+    if (this.state.fresh) {
+      return this.renderWelcomeView(); // TODO make it slide in from bottom and slide down
+    }
+    /* Permission screen */
+    // if (this.state.micPermission !== 'YES') {  // TODO make a modal view for this and show at call
+    //   return this.renderPermissionView();
+    // }
+    /* Main view */
     if (this.state.calling) {
       return this.renderHangupView();
     } else {
@@ -256,6 +358,38 @@ class Pear extends Component {
   }
 
   /* Render methods */
+  renderLoadingView() {
+    return (
+      <View style={styles.container}>
+      </View>
+    );
+  }
+
+  renderWelcomeView() {
+    return (
+      <View style={styles.container}>
+        <View style={{flex: 0.5, justifyContent: 'center', alignItems:'center'}}>
+          <Text style={{alignSelf: 'center', color:'white', fontSize:30}}>Welcome screen</Text>
+        </View>
+        <View style={{flex: 0.5, justifyContent: 'center', alignItems:'center'}}>
+          <TouchableHighlight style={{width: 200, height: 40,alignItems:'center',justifyContent:'center', borderWidth:1, borderColor:'white', borderRadius:13, backgroundColor: '#ff6169'}}
+                              underlayColor="#e0e0e0"
+                              onPress={this.onWelcomeButtonPressed.bind(this)}>
+            <Text style={{color: 'white', fontSize: 18}}>Let's get started 😀</Text>
+          </TouchableHighlight>
+        </View>
+      </View>
+    );
+  }
+
+  renderPermissionView() {
+    return (
+      <View style={styles.container}>
+        <Text>Permission</Text>
+      </View>
+    );
+  }
+
   renderCallView() {
     return (
       <ScrollView contentContainerStyle={styles.container, {height: this.state.visibleHeight}}
@@ -281,8 +415,6 @@ class Pear extends Component {
                               onPress={this.onCallButtonPressed.bind(this)}>
             <Text style={styles.callButtonText}>Call</Text>
           </TouchableHighlight>
-          <RTCView streamURL={this.state.remoteSrc}>
-          </RTCView>
         </View>
       </ScrollView>
     );
@@ -357,16 +489,19 @@ class Pear extends Component {
         </TouchableHighlight>
       );
     }
-  } /* Render methods end */
+  }  /* Render methods end */
 
   /* Button event */
+  onWelcomeButtonPressed() {
+    this.setState({fresh: false});
+  }
+
   onCallButtonPressed() {
     var roomNameVal = this.state.hashTagText.toLowerCase().replace(/@|#| /g, '').slice(0, 21);
     /* Connect to server to peer */
-    // socket = io('https://0.0.0.0:8000/api/webrtc', { query: 'secret=abcde', forceNew: true });
-    // listen(roomNameVal);
+    socket = io('https://react-native-webrtc.herokuapp.com/', { query: 'secret=abcde', forceNew: true });
+    listen(roomNameVal);
     /* UI change */
-    this.setState({});
     this.setState({
       callStartTime: new Date(),
       callInterval: setInterval(() => { 
@@ -382,11 +517,7 @@ class Pear extends Component {
   }
 
   onHangupButtonPressed() {
-    /* Disconnect from server and peer */
-    // end();
-    /* UI change */
-    clearInterval(this.state.callInterval);
-    this.setState({calling: false, callDeltaTime: '00:00'});
+    end();
   } 
 
   onMuteButtonPressed() {
@@ -405,7 +536,7 @@ class Pear extends Component {
       RTCSetting.setAudioOutput('speaker');
       this.setState({speakerOn: true});
     }
-  } /* Button event end */
+  }  /* Button event end */
 
   /* Text input callbacks start */
   onHashTagTextFocused() {
@@ -424,14 +555,14 @@ class Pear extends Component {
 
   onHashTagTextEndEditing() {
     this.setState({hashTagText: this.state.hashTagText.toLowerCase().replace(/@| /g, '')});
-  } /* Text input callbacks end */
+  }  /* Text input callbacks end */
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
-    backgroundColor: 'white',
+    backgroundColor: '#ff6169',
   },
   callTopContainer: {
     flex: 0.60,
@@ -476,8 +607,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   hashTagInput: {
-    width: 500,
     height: 40,
+    width: Dimensions.get('window').width-20,
     paddingLeft: 15,
     paddingRight: 15,
     backgroundColor: '#ff6169',
