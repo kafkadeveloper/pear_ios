@@ -1,22 +1,6 @@
 'use strict';
 
-/* Permanent storage keys */
-const REV = '21'
-const STORAGE_FRESH = '@PearStorage:fresh' + REV;
-const STORAGE_MIC = '@PearStorage:mic' + REV;
-const STORAGE_LOC = '@PearStorage:loc' + REV;
-const STORAGE_UPT = '@PearStorage:upt' + REV;
-
-
-/* Color palette */
-const RED = '#ff6169';
-const BLUE = '#26476b';
-const GREY = '#f6f6f6';
-
-var DeviceInfo = require('react-native-device-info');
-
-var React = require('react-native');
-var {
+import React, {
   AppRegistry,
   Component,
   StyleSheet,
@@ -29,48 +13,44 @@ var {
   AsyncStorage,
   DeviceEventEmitter,
   Dimensions,
-} = React;
-
-window.navigator.userAgent = "react-native";
-
-var io = require('socket.io-client/socket.io');
-var WebRTC = require('react-native-webrtc');
-var {
+} from 'react-native';
+import WebRTC, {
   RTCPeerConnection,
   RTCMediaStream,
   RTCIceCandidate,
   RTCSessionDescription,
   RTCView,
   RTCSetting,
-} = WebRTC;
-var configuration = {"iceServers": [{"url": "stun:stun.l.google.com:19302"},
-                                    {"url": "stun:stun.services.mozilla.com"}]};
+} from 'react-native-webrtc';
+import DeviceInfo from 'react-native-device-info';
+window.navigator.userAgent = 'react-native';
+let io = require('socket.io-client/socket.io');
 
-var localStream;
-var socket;
-var pcPeers = {};
-var component;
+/* Permanent storage keys */
+const REV = '21'
+const STORAGE_FRESH = '@PearStorage:fresh' + REV;
+const STORAGE_MIC = '@PearStorage:mic' + REV;
+const STORAGE_LOC = '@PearStorage:loc' + REV;
+const STORAGE_UPT = '@PearStorage:upt' + REV;
 
-function getLocalStream(callback) {
-  var constraints = {video: false, audio: true};
-  navigator.getUserMedia(constraints, stream => {
-    console.log('getUserMediaSuccess');
-     /* getUserMediaSuccess */ localStream = stream;
-                               callback();
-  }, /* get UserMediaFail  */  logError);
-}
+/* Color palette */
+const RED = '#ff6169';
+const BLUE = '#26476b';
+const GREY = '#f6f6f6';
+const RED_RGBA = 'rgba(255, 97, 105, x)';
+const BLUE_RGBA = 'rgba(38, 71, 107, x)';
 
-function join(roomId) {
-  console.log('joinRoom');
-  socket.emit('join', roomId, socketIds => {
-    for (var i in socketIds) {
-      createPC(socketIds[i], true);
-    }
-  });
-}
+/* Set up & Initialize global variables */
+const pcPeers = {};
+let localStream;
+let socket;
+let component;
+const PC_CONFIG = {"iceServers": [{"url": "stun:stun.l.google.com:19302"},
+                                  {"url": "stun:stun.services.mozilla.com"}]};
+
 
 function createPC(socketId, isOffer) {
-  var pc = new RTCPeerConnection(configuration);
+  let pc = new RTCPeerConnection(PC_CONFIG);
   pcPeers[socketId] = pc;
 
   function createOffer() {
@@ -118,8 +98,8 @@ function createPC(socketId, isOffer) {
 }
 
 function exchange(data) {
-  var fromId = data.from;
-  var pc;
+  let fromId = data.from;
+  let pc;
   if (fromId in pcPeers) {
     pc = pcPeers[fromId];
   } else {
@@ -149,7 +129,27 @@ function exchange(data) {
   }
 }
 
-function end() {
+function join(roomId) {
+  console.log('joinRoom');
+  socket.emit('join', roomId, socketIds => {
+    for (let i in socketIds) {
+      createPC(socketIds[i], true);
+    }
+  });
+}
+
+function getLocalStream(callback) {
+  let constraints = {video: false, audio: true};
+  navigator.getUserMedia(constraints, stream => {
+    callback(stream);
+  }, logError);
+}
+
+function logError(error) {
+  console.log('logError', error);
+}
+
+function hangup() {
   /* UI change */
   clearInterval(component.state.callInterval);
   component.setState({calling: false, 
@@ -161,11 +161,10 @@ function end() {
   // unmute
 
   /* Disconnect from server */
-  console.log('end');
   socket.disconnect();
 
   /* Close peer connection and delete them */
-  for (var socketId in pcPeers) {
+  for (let socketId in pcPeers) {
     pcPeers[socketId].close();
     delete pcPeers[socketId];
   }
@@ -174,59 +173,51 @@ function end() {
   RTCSetting.setProximityScreenOff(false);
 }
 
-function logError(error) {
-  console.log('logError', error);
+function call() {
+  getLocalStream(stream => {
+    localStream = stream;
+
+    let id = makeRoomId();
+    let roomName = component.state.hashTagText.replace(/#/g, '');
+
+    join({name: roomName, 
+          id: roomName + '@' + id, 
+          uuid: DeviceInfo.getUniqueID(),
+          appv: DeviceInfo.getReadableVersion(),
+          lang: DeviceInfo.getReadableVersion(),
+          loc: component.state.loc});
+  });
+
+  /* Set call settings */
+  RTCSetting.setAudioOutput('handset');
+  RTCSetting.setKeepScreenOn(false);
+  RTCSetting.setProximityScreenOff(true);
 }
 
 function listen() {
   // is this the right way to do this?
   socket.on('connect_error', data => {
     console.log('connect error', data);
-    end();
-  });
-
-  socket.on('connect', data => {
-    console.log('connect');
-
-    /* Call settings */
-    RTCSetting.setAudioOutput('handset');
-    RTCSetting.setKeepScreenOn(false);
-    RTCSetting.setProximityScreenOff(true);
-
-    /* getLocalStream and join */
-    getLocalStream(() => {
-      var id = makeRoomId();
-      var roomName = component.state.hashTagText.replace(/#/g, '');
-
-      join({name: roomName, 
-            id: roomName + '@' + id, 
-            device: component.state.deviceInfo,
-            loc: component.state.loc});
-    });
-  });
-
-  socket.on('exchange', data => {
-    console.log('exchange');
-    exchange(data);
+    hangup();
   });
 
   socket.on('end', () => {
-    end();
+    hangup();
+  });
+
+  socket.on('connect', data => {
+    call();
+  });
+
+  socket.on('exchange', data => {
+    exchange(data);
   });
 
   console.log('listening');
 }
 
-function getDeviceInfo() {
-  return  DeviceInfo.getUniqueID() + '@' +
-          DeviceInfo.getModel().split(' ').join('_') + '@' +
-          DeviceInfo.getSystemVersion() + '@' +
-          DeviceInfo.getReadableVersion() + '@' +
-          DeviceInfo.getDeviceLocale();
-}
-
 function getLoc(callback) {
-  var url = 'http://ipinfo.io/country';
+  let url = 'http://ipinfo.io/country';
   fetch(url).then(res => {
     return res.text();
   }).then(body => {
@@ -239,9 +230,9 @@ function getLoc(callback) {
 }
 
 function makeRoomId() {
-  var text = "";
-  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  for (var i = 0; i < 10; i++) {
+  let text = "";
+  let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  for (let i = 0; i < 10; i++) {
     text += possible.charAt(Math.floor(Math.random() * possible.length));
   }
   return text;
@@ -274,7 +265,6 @@ class Pear extends Component {
 
   componentDidMount() {
     component = this;
-    this.state.deviceInfo = getDeviceInfo();
     this._checkFreshAndMicState().done;
     this._checkAndUpdateUptAndLocState().done;
     DeviceEventEmitter.addListener('keyboardWillShow', this.keyboardWillShow.bind(this));
@@ -285,8 +275,8 @@ class Pear extends Component {
   async _checkFreshAndMicState() {
     console.log('_checkFreshAndMicState');
     try {
-      var freshValue = await AsyncStorage.getItem(STORAGE_FRESH);
-      var micValue = await AsyncStorage.getItem(STORAGE_MIC);
+      let freshValue = await AsyncStorage.getItem(STORAGE_FRESH);
+      let micValue = await AsyncStorage.getItem(STORAGE_MIC);
       /* First-ever loading */
       if (!freshValue) {
         this.setState({fresh: true, micPermission: 'NO'});
@@ -306,12 +296,12 @@ class Pear extends Component {
   async _checkAndUpdateUptAndLocState() {
     console.log('_checkAndUpdateUptAndLocState');
     try {
-      var uptValue = await AsyncStorage.getItem(STORAGE_UPT);
+      let uptValue = await AsyncStorage.getItem(STORAGE_UPT);
       if ((new Date() - new Date(uptValue)) > 3600000) {
         console.log('update loc state');
         await getLoc(currLoc => {
           if (currLoc) {
-            var currTime = new Date();
+            let currTime = new Date();
             AsyncStorage.setItem(STORAGE_LOC, currLoc);
             AsyncStorage.setItem(STORAGE_UPT, currTime);
             if (this.state.loc !== currLoc) {
@@ -322,7 +312,7 @@ class Pear extends Component {
       } else {
         if (!this.state.loc) {
           console.log('retrieve loc state');
-          var locValue = await AsyncStorage.getItem(STORAGE_LOC);
+          let locValue = await AsyncStorage.getItem(STORAGE_LOC);
           this.setState({loc: locValue});
         } else {
           console.log('loc state already available');
@@ -518,36 +508,41 @@ class Pear extends Component {
     this.setState({fresh: false});
   }
 
-  linearGradualBackgroundShiftStart(x, y, callback) {
-    var z = this.state.bgColor;
-    var zStr = '';
-    var zHex = [];
-    var xHex = [];
-    var yHex = [];
-    var diffHex= [];
-    var iMax = 0;
+  linearGradualBackgroundShift(x, y, callback) {
 
-    for (var i = 1; i <= 5; i += 2) {
+    
+
+    // TODO [].map(val => val++)
+    let z = this.state.bgColor;
+    let zStr = '';
+    let zHex = [];
+    let xHex = [];
+    let yHex = [];
+    let diffHex= [];
+    let iMax = 0;
+    let i;
+
+    for (i = 1; i <= 5; i += 2) {
       zHex.push(parseInt(z.slice(i, i+2), 16));
       xHex.push(parseInt(x.slice(i, i+2), 16));
       yHex.push(parseInt(y.slice(i, i+2), 16));
       diffHex.push(parseInt(x.slice(i, i+2), 16) - parseInt(y.slice(i, i+2), 16));
     }
 
-    for (var i = 1; i < 3; i++) {
+    for (i = 1; i < 3; i++) {
       if (diffHex[i] > diffHex[i-1]) {
         iMax = i;
       }
     }
 
-    var gradientInterval = setInterval(() => {
+    let gradientInterval = setInterval(() => {
       zStr = '#';
       if (diffHex[iMax] === 0) {
         /* End interval */
         clearInterval(gradientInterval);
         callback();
       } else {
-        for (var i = 0; i < 3; i++) {
+        for (i = 0; i < 3; i++) {
           if (diffHex[i] > 0) {
             if (diffHex[i] < 6) {
               diffHex[i]--;
@@ -573,29 +568,30 @@ class Pear extends Component {
   }
 
   onCallButtonPressed() {
-    /* Connect to server and peer */
-    socket = io('https://stark-plains-31370.herokuapp.com/api/webrtc', { query: 'secret=abcde', forceNew: true });
+    socket = io('https://stark-plains-31370.herokuapp.com/api/webrtc', 
+                { query: 'secret=abcde', forceNew: true });
     listen();
+
     /* UI change */
-    this.linearGradualBackgroundShiftStart(RED, BLUE, () => {
+    this.linearGradualBackgroundShift(RED, BLUE, () => {
       this.setState({
-      callStartTime: new Date(),
-      callInterval: setInterval(() => { 
-        var mss = Math.floor((new Date() - this.state.callStartTime) / 1000);
-        var secs = mss % 60;
-        var minutes = Math.floor(mss / 60);
-        secs > 9 ? secs = secs.toString() : secs = '0' + secs.toString();
-        minutes > 9 ? minutes = minutes.toString() : minutes = '0' + minutes.toString();
-        this.setState({callDeltaTime: minutes + ':' + secs});
-      }, 1000),
-      calling: true,
-      bgColor: BLUE,
-    });
+        callStartTime: new Date(),
+        callInterval: setInterval(() => { 
+          let mss = Math.floor((new Date() - this.state.callStartTime) / 1000);
+          let secs = mss % 60;
+          let minutes = Math.floor(mss / 60);
+          secs > 9 ? secs = secs.toString() : secs = '0' + secs.toString();
+          minutes > 9 ? minutes = minutes.toString() : minutes = '0' + minutes.toString();
+          this.setState({callDeltaTime: minutes + ':' + secs});
+        }, 1000),
+        calling: true,
+        bgColor: BLUE,
+      });
     });
   }
 
   onHangupButtonPressed() {
-    end();
+    hangup();
   } 
 
   onMuteButtonPressed() {
