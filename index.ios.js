@@ -12,7 +12,6 @@ import React, {
   Image,
   AsyncStorage,
   DeviceEventEmitter,
-  Dimensions,
 } from 'react-native';
 import WebRTC, {
   RTCPeerConnection,
@@ -156,8 +155,7 @@ function hangup() {
                       callDeltaTime: '00:00', 
                       /*remoteSrc:null,*/
                       micMuted: false,
-                      speakerOn: false, 
-                      bgColor: RED});
+                      speakerOn: false});
   // unmute
 
   /* Disconnect from server */
@@ -178,7 +176,7 @@ function call() {
     localStream = stream;
 
     let id = makeRoomId();
-    let roomName = component.state.hashTagText.replace(/#/g, '');
+    let roomName = '';
 
     join({name: roomName, 
           id: roomName + '@' + id, 
@@ -246,12 +244,9 @@ class Pear extends Component {
       micPermission: 'YES',
       loc: null,
 
-      bgColor: RED,
-
-      visibleHeight: Dimensions.get('window').height,
+      bgOverlayColor: RED,
 
       calling: false,
-      hashTagText: '#',
       /*remoteSrc: null,*/
 
       micMuted: false,
@@ -267,8 +262,6 @@ class Pear extends Component {
     component = this;
     this._checkFreshAndMicState().done;
     this._checkAndUpdateUptAndLocState().done;
-    DeviceEventEmitter.addListener('keyboardWillShow', this.keyboardWillShow.bind(this));
-    DeviceEventEmitter.addListener('keyboardWillHide', this.keyboardWillHide.bind(this));
   }
 
   /* Async storage methods */
@@ -333,21 +326,6 @@ class Pear extends Component {
     }
   }  /* Async storage methods end */
 
-  /* Keyboard event responder */
-  keyboardWillShow(e) {
-    if (this.state.visibleHeight === 667) {           // iPhone 6, 6s
-      this.setState({visibleHeight: 667 - 20});
-    } else if (this.state.visibleHeight === 568) {    // iPhone 5, 5s
-      this.setState({visibleHeight: 568 - 70});
-    } else if (this.state.visibleHeight === 480) {    // iPhone 4, 4s
-      this.setState({visibleHeight: 480 - 120}); 
-    } /* else: 736: iPhone 6 plus, 6s plus */
-  }
-
-  keyboardWillHide(e) {
-    this.setState({visibleHeight: Dimensions.get('window').height});
-  }  /* Keyboard event responders */
-
   render() {
     /* Loading screen */
     // if (this.state.loading) {
@@ -402,64 +380,74 @@ class Pear extends Component {
     );
   }
 
+  renderMainView() {
+    return (
+      <View style={styles.container}>
+        <View style={{flex: 1, flexDirection: 'column', backgroundColor: this.state.bgOverlayColor}}>
+          <View style={styles.topContainer}>
+          </View>
+          <View style={styles.middleContainer}>
+          </View>
+          <View style={styles.divideContainer}>
+          </View>
+          <View style={styles.bottomContainer}>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
   renderCallView() {
     return (
-      <ScrollView style={{backgroundColor: this.state.bgColor}} 
-                  contentContainerStyle={styles.container, {height: this.state.visibleHeight}}
-                  scrollEnabled={false}>
-        <View style={styles.callTopContainer}>
+      <View style={styles.container}>
+        <View style={{flex: 1, flexDirection: 'column', backgroundColor: this.state.bgOverlayColor}}>
+          <View style={styles.topContainer}>
+          </View>
+          <View style={styles.middleContainer}>
+          </View>
+          <View style={styles.divideContainer}>
+          </View>
+          <View style={styles.bottomContainer}>
+            <TouchableHighlight style={styles.circleButton}
+                                underlayColor={GREY}
+                                onPress={this.onCallButtonPressed.bind(this)}>
+              <Text style={styles.circleButtonText, {color: this.state.bgOverlayColor}}>Call</Text>
+            </TouchableHighlight>
+          </View>
         </View>
-        <View style={styles.callMiddleContainer}>
-          <TextInput style={styles.hashTagInput}
-                     value={this.state.hashTagText}
-                     onChange={this.onHashTagTextChanged.bind(this)}
-                     onFocus={this.onHashTagTextFocused.bind(this)}
-                     onEndEditing={this.onHashTagTextEndEditing.bind(this)}
-                     autoCapitalize='none'
-                     autoCorrect={false}
-                     maxLength={21}
-                     keyboardType='ascii-capable' />
-        </View>
-        <View style={styles.divideContainer}>
-        </View>
-        <View style={styles.callButtonContainer}>
-          <TouchableHighlight style={styles.circleButton}
-                              underlayColor={GREY}
-                              onPress={this.onCallButtonPressed.bind(this)}>
-            <Text style={styles.circleButtonText, {color: this.state.bgColor}}>Call</Text>
-          </TouchableHighlight>
-        </View>
-      </ScrollView>
+      </View>
     );
   }
 
   renderHangupView() {
     return (
-      <ScrollView style={{backgroundColor: this.state.bgColor}} 
-                  contentContainerStyle={styles.container, {height: this.state.visibleHeight}}
-                  scrollEnabled={false}>
-        <View style={styles.hangupTopContainer}>
-          <View style={styles.callingTextContainer}>
-            <Text style={styles.callingText}>Calling {this.state.hashTagText}</Text>
+      <View style={styles.container}>
+        <View style={{flex: 1, flexDirection: 'column', backgroundColor: this.state.bgOverlayColor}}>
+          <View style={styles.topContainer}>
+
+            <View style={styles.callingTextContainer}>
+              <Text style={styles.callingText}>Calling</Text>
+            </View>
+            <View style={styles.deltaTextContainer}>
+              <Text style={styles.deltaText}>{this.state.callDeltaTime}</Text>
+            </View>
+
           </View>
-          <View style={styles.deltaTextContainer}>
-            <Text style={styles.deltaText}>{this.state.callDeltaTime}</Text>
+          <View style={styles.middleContainer}>
+            {this.renderMuteButton()}
+            {this.renderSpeakerButton()}
+          </View>
+          <View style={styles.divideContainer}>
+          </View>
+          <View style={styles.bottomContainer}>
+            <TouchableHighlight style={styles.circleButton}
+                                underlayColor={GREY}
+                                onPress={this.onHangupButtonPressed.bind(this)}>
+              <Text style={styles.circleButtonText, {color: this.state.bgOverlayColor}}>Hang up</Text>
+            </TouchableHighlight>
           </View>
         </View>
-        <View style={styles.hangupMiddleContainer}>
-          {this.renderMuteButton()}
-          {this.renderSpeakerButton()}
-        </View>
-        <View style={styles.divideContainer}>
-        </View>
-        <View style={styles.hangupButtonContainer}>
-          <TouchableHighlight style={styles.circleButton}
-                              underlayColor={GREY}
-                              onPress={this.onHangupButtonPressed.bind(this)}>
-            <Text style={styles.circleButtonText, {color: this.state.bgColor}}>Hang up</Text>
-          </TouchableHighlight>
-        </View>
-      </ScrollView>
+      </View>
     );
   } 
 
@@ -508,63 +496,33 @@ class Pear extends Component {
     this.setState({fresh: false});
   }
 
-  linearGradualBackgroundShift(x, y, callback) {
-
-    
-
-    // TODO [].map(val => val++)
-    let z = this.state.bgColor;
-    let zStr = '';
-    let zHex = [];
-    let xHex = [];
-    let yHex = [];
-    let diffHex= [];
-    let iMax = 0;
-    let i;
-
-    for (i = 1; i <= 5; i += 2) {
-      zHex.push(parseInt(z.slice(i, i+2), 16));
-      xHex.push(parseInt(x.slice(i, i+2), 16));
-      yHex.push(parseInt(y.slice(i, i+2), 16));
-      diffHex.push(parseInt(x.slice(i, i+2), 16) - parseInt(y.slice(i, i+2), 16));
-    }
-
-    for (i = 1; i < 3; i++) {
-      if (diffHex[i] > diffHex[i-1]) {
-        iMax = i;
-      }
-    }
+  linearGradualBackgroundShiftRed(callback) {
+    let d = 1;
 
     let gradientInterval = setInterval(() => {
-      zStr = '#';
-      if (diffHex[iMax] === 0) {
-        /* End interval */
+      if (d < 0) {
+        clearInterval(gradientInterval);
+        this.setState({bgOverlayColor: RED});
+        callback();
+      } else {
+        this.setState({bgOverlayColor: BLUE_RGBA.replace('x', d)});
+      }
+      d -= 0.05;
+    }, 18);
+  }
+
+  linearGradualBackgroundShiftBlue(callback) {
+    let d = 0.05;
+
+    let gradientInterval = setInterval(() => {
+      if (d > 1) {
         clearInterval(gradientInterval);
         callback();
       } else {
-        for (i = 0; i < 3; i++) {
-          if (diffHex[i] > 0) {
-            if (diffHex[i] < 6) {
-              diffHex[i]--;
-              zHex[i]--;
-            } else {
-              diffHex[i] -= 6;
-              zHex[i] -= 6;
-            }
-          } else if (diffHex[i] < 0) {
-            if (diffHex[i] < 6) {
-              diffHex[i]++;
-              zHex[i]++;
-            } else {
-              diffHex[i] += 6;
-              zHex[i] += 6;
-            }
-          }
-          zStr += zHex[i].toString(16);
-        }
-        this.setState({bgColor: zStr});
+        this.setState({bgOverlayColor: BLUE_RGBA.replace('x', d)});
       }
-    }, 4);
+      d += 0.05;
+    }, 18);
   }
 
   onCallButtonPressed() {
@@ -573,7 +531,7 @@ class Pear extends Component {
     listen();
 
     /* UI change */
-    this.linearGradualBackgroundShift(RED, BLUE, () => {
+    this.linearGradualBackgroundShiftBlue(() => {
       this.setState({
         callStartTime: new Date(),
         callInterval: setInterval(() => { 
@@ -585,12 +543,13 @@ class Pear extends Component {
           this.setState({callDeltaTime: minutes + ':' + secs});
         }, 1000),
         calling: true,
-        bgColor: BLUE,
       });
     });
   }
 
   onHangupButtonPressed() {
+    this.linearGradualBackgroundShiftRed(() => {
+    });
     hangup();
   } 
 
@@ -614,41 +573,16 @@ class Pear extends Component {
       RTCSetting.setAudioOutput('speaker');
     }
   }  /* Button event end */
-
-  /* Text input callbacks start */
-  onHashTagTextFocused() {
-    this.setState({hashTagText: '#'});
-  }
-
-  onHashTagTextChanged(event) {
-    if (!event.nativeEvent.text) {
-      this.setState({hashTagText: '#'});
-    } else if (event.nativeEvent.text[0] !== '#') {
-      this.setState({hashTagText: '#'});
-    } else {
-      this.setState({hashTagText: event.nativeEvent.text});
-    }
-  }
-
-  onHashTagTextEndEditing() {
-    this.setState({hashTagText: this.state.hashTagText.toLowerCase().replace(/@| /g, '')});
-  }  /* Text input callbacks end */
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
+    backgroundColor: RED,
   },
-  callTopContainer: {
-    flex: 0.60,
-    backgroundColor: 'transparent',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  hangupTopContainer: {
+  topContainer: {
     flex: 0.57,
-    backgroundColor: 'transparent',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -663,52 +597,24 @@ const styles = StyleSheet.create({
   deltaTextContainer: {
     flex: 0.7,
     justifyContent: 'flex-start',
-    backgroundColor: 'transparent',
   },
   deltaText: {
-    fontSize: 38, // 32
+    fontSize: 38,
     color: 'white',
   },
-  callMiddleContainer: {
-    flex: 0.1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'transparent',
-    flexDirection: 'column',
-  },
-  hangupMiddleContainer: {
+  middleContainer: {
     flex: 0.13,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'transparent',
     flexDirection: 'row',
-  },
-  hashTagInput: {
-    height: 40,
-    width: Dimensions.get('window').width-20,
-    paddingLeft: 15,
-    paddingRight: 15,
-    backgroundColor: 'transparent',
-    color: 'white',
-    fontSize: 20,
-    alignSelf: 'center',
-    textAlign: 'center',
   },
   divideContainer: {
     flex: 0.05,
-    backgroundColor: 'transparent',
   },
-  callButtonContainer: {
+  bottomContainer: {
     flex: 0.25,
     alignItems: 'center',
     justifyContent: 'flex-start',
-    backgroundColor: 'transparent',
-  },
-  hangupButtonContainer: {
-    flex: 0.25,
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    backgroundColor: 'transparent',
   },
   circleButton: {
     height: 90,
@@ -725,7 +631,6 @@ const styles = StyleSheet.create({
     height: 60,
     width: 60,
     borderRadius: 45,
-    backgroundColor: 'transparent',
     borderWidth: 1,
     borderColor: 'white',
     alignItems: 'center',
