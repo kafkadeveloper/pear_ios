@@ -1,10 +1,17 @@
 'use strict';
 
-var REV = '20'
-var STORAGE_FRESH = '@PearStorage:fresh' + REV;
-var STORAGE_MIC =     '@PearStorage:mic' + REV;
-var STORAGE_LOC =     '@PearStorage:loc' + REV;
-var STORAGE_UPT =     '@PearStorage:upt' + REV;
+/* Permanent storage keys */
+const REV = '21'
+const STORAGE_FRESH = '@PearStorage:fresh' + REV;
+const STORAGE_MIC = '@PearStorage:mic' + REV;
+const STORAGE_LOC = '@PearStorage:loc' + REV;
+const STORAGE_UPT = '@PearStorage:upt' + REV;
+
+
+/* Color palette */
+const RED = '#ff6169';
+const BLUE = '#26476b';
+const GREY = '#f6f6f6';
 
 var DeviceInfo = require('react-native-device-info');
 
@@ -68,16 +75,19 @@ function createPC(socketId, isOffer) {
 
   function createOffer() {
     pc.createOffer(desc => {
-      console.log('createOffer', desc);
+      // console.log('createOffer', desc);
+      console.log('createOffer');
       pc.setLocalDescription(desc, () => {
-        console.log('setLocalDescription', pc.localDescription);
+        // console.log('setLocalDescription', pc.localDescription);
+        console.log('setLocalDescription');
         socket.emit('exchange', {'to': socketId, 'sdp': pc.localDescription});
       }, logError);
     }, logError);
   }
 
   pc.onicecandidate = event => {
-    console.log('onicecandidate', event.candidate);
+    // console.log('onicecandidate', event.candidate);
+    console.log('onicecandidate');
     if (event.candidate) {
       socket.emit('exchange', {'to': socketId, 'candidate': event.candidate});
     }
@@ -95,9 +105,12 @@ function createPC(socketId, isOffer) {
     console.log('onsignalingstatechange', event.target.signalingState);
   };
   pc.onaddstream = event => {
-    console.log('onaddstream', event.stream);
-    // set remote audio source
-    component.setState({remoteSrc: event.stream.toURL()});
+    // console.log('onaddstream', event.stream);
+    console.log('onaddstream');
+    /*component.setState({remoteSrc: event.stream.toURL()});*/
+  };
+  pc.onremovestream = event => {
+    console.log('onremovestream', event);
   };
 
   pc.addStream(localStream);
@@ -114,25 +127,39 @@ function exchange(data) {
   }
 
   if (data.sdp) {
-    console.log('exchange sdp', data);
+    // console.log('exchange sdp', data);
+    console.log('exchange sdp');
     pc.setRemoteDescription(new RTCSessionDescription(data.sdp), () => {
       if (pc.remoteDescription.type == "offer") {
         pc.createAnswer(desc => {
-          console.log('createAnswer', desc);
+          // console.log('createAnswer', desc);
+          console.log('createAnswer');
           pc.setLocalDescription(desc, () => {
-            console.log('setLocalDescription', pc.localDescription);
+            // console.log('setLocalDescription', pc.localDescription);
+            console.log('setLocalDescription');
             socket.emit('exchange', {'to': fromId, 'sdp': pc.localDescription});
           }, logError);
         }, logError);
       }
     }, logError);
   } else {
-    console.log('exchange candidate', data);
+    // console.log('exchange candidate', data);
+    console.log('exchange candidate');
     pc.addIceCandidate(new RTCIceCandidate(data.candidate));
   }
 }
 
 function end() {
+  /* UI change */
+  clearInterval(component.state.callInterval);
+  component.setState({calling: false, 
+                      callDeltaTime: '00:00', 
+                      /*remoteSrc:null,*/
+                      micMuted: false,
+                      speakerOn: false, 
+                      bgColor: RED});
+  // unmute
+
   /* Disconnect from server */
   console.log('end');
   socket.disconnect();
@@ -143,10 +170,6 @@ function end() {
     delete pcPeers[socketId];
   }
 
-  /* UI change */
-  clearInterval(component.state.callInterval);
-  component.setState({calling: false, callDeltaTime: '00:00', remoteSrc:null});
-
   /* Hangup setting */
   RTCSetting.setProximityScreenOff(false);
 }
@@ -155,7 +178,7 @@ function logError(error) {
   console.log('logError', error);
 }
 
-function listen(roomNameVal) {
+function listen() {
   // is this the right way to do this?
   socket.on('connect_error', data => {
     console.log('connect error', data);
@@ -172,13 +195,13 @@ function listen(roomNameVal) {
 
     /* getLocalStream and join */
     getLocalStream(() => {
-      // var id = makeRoomId();
-      // join({name: roomNameVal, 
-      //       id: roomNameVal + '@' + id, 
-      //       device: component.state.deviceInfo,
-      //       loc: component.state.loc});
-      console.log(component.state.deviceInfo + ' @' + component.state.loc);
-      join(component.state.hashTagText.replace(/#/g, '')); // TEST
+      var id = makeRoomId();
+      var roomName = component.state.hashTagText.replace(/#/g, '');
+
+      join({name: roomName, 
+            id: roomName + '@' + id, 
+            device: component.state.deviceInfo,
+            loc: component.state.loc});
     });
   });
 
@@ -203,10 +226,7 @@ function getDeviceInfo() {
 }
 
 function getLoc(callback) {
-  // TODO error handling
   var url = 'http://ipinfo.io/country';
-  // var response = await fetch(url);
-  // return response.text().trim();
   fetch(url).then(res => {
     return res.text();
   }).then(body => {
@@ -235,11 +255,13 @@ class Pear extends Component {
       micPermission: 'YES',
       loc: null,
 
+      bgColor: RED,
+
       visibleHeight: Dimensions.get('window').height,
 
       calling: false,
       hashTagText: '#',
-      remoteSrc: null,
+      /*remoteSrc: null,*/
 
       micMuted: false,
       speakerOn: false,
@@ -372,8 +394,8 @@ class Pear extends Component {
           <Text style={{alignSelf: 'center', color:'white', fontSize:30}}>Welcome screen</Text>
         </View>
         <View style={{flex: 0.5, justifyContent: 'center', alignItems:'center'}}>
-          <TouchableHighlight style={{width: 200, height: 40,alignItems:'center',justifyContent:'center', borderWidth:1, borderColor:'white', borderRadius:13, backgroundColor: '#ff6169'}}
-                              underlayColor="#e0e0e0"
+          <TouchableHighlight style={{width: 200, height: 40,alignItems:'center',justifyContent:'center', borderWidth:1, borderColor:'white', borderRadius:13, backgroundColor: 'transparent'}}
+                              underlayColor={GREY}
                               onPress={this.onWelcomeButtonPressed.bind(this)}>
             <Text style={{color: 'white', fontSize: 18}}>Let's get started 😀</Text>
           </TouchableHighlight>
@@ -392,7 +414,8 @@ class Pear extends Component {
 
   renderCallView() {
     return (
-      <ScrollView contentContainerStyle={styles.container, {height: this.state.visibleHeight}}
+      <ScrollView style={{backgroundColor: this.state.bgColor}} 
+                  contentContainerStyle={styles.container, {height: this.state.visibleHeight}}
                   scrollEnabled={false}>
         <View style={styles.callTopContainer}>
         </View>
@@ -407,13 +430,13 @@ class Pear extends Component {
                      maxLength={21}
                      keyboardType='ascii-capable' />
         </View>
-        <View style={styles.callDivideContainer}>
+        <View style={styles.divideContainer}>
         </View>
         <View style={styles.callButtonContainer}>
           <TouchableHighlight style={styles.circleButton}
-                              underlayColor="#e0e0e0"
+                              underlayColor={GREY}
                               onPress={this.onCallButtonPressed.bind(this)}>
-            <Text style={styles.callButtonText}>Call</Text>
+            <Text style={styles.circleButtonText, {color: this.state.bgColor}}>Call</Text>
           </TouchableHighlight>
         </View>
       </ScrollView>
@@ -422,11 +445,12 @@ class Pear extends Component {
 
   renderHangupView() {
     return (
-      <ScrollView contentContainerStyle={styles.container, {height: this.state.visibleHeight}}
+      <ScrollView style={{backgroundColor: this.state.bgColor}} 
+                  contentContainerStyle={styles.container, {height: this.state.visibleHeight}}
                   scrollEnabled={false}>
         <View style={styles.hangupTopContainer}>
           <View style={styles.callingTextContainer}>
-            <Text style={styles.callingText}>{this.state.hashTagText}</Text>
+            <Text style={styles.callingText}>Calling {this.state.hashTagText}</Text>
           </View>
           <View style={styles.deltaTextContainer}>
             <Text style={styles.deltaText}>{this.state.callDeltaTime}</Text>
@@ -436,16 +460,14 @@ class Pear extends Component {
           {this.renderMuteButton()}
           {this.renderSpeakerButton()}
         </View>
-        <View style={styles.hangupDivideContainer}>
+        <View style={styles.divideContainer}>
         </View>
         <View style={styles.hangupButtonContainer}>
           <TouchableHighlight style={styles.circleButton}
-                              underlayColor="#e0e0e0"
+                              underlayColor={GREY}
                               onPress={this.onHangupButtonPressed.bind(this)}>
-            <Text style={styles.hangupButtonText}>Hang up</Text>
+            <Text style={styles.circleButtonText, {color: this.state.bgColor}}>Hang up</Text>
           </TouchableHighlight>
-          <RTCView streamURL={this.state.remoteSrc}>
-          </RTCView>
         </View>
       </ScrollView>
     );
@@ -455,7 +477,7 @@ class Pear extends Component {
     if (this.state.micMuted) {
       return (
         <TouchableHighlight style={styles.audioControlButtonOn}
-                            underlayColor="#e0e0e0"
+                            underlayColor={GREY}
                             onPress={this.onMuteButtonPressed.bind(this)}>
           <Image source={require('image!muteOn')} style={{width: 17, height: 20,}} />
         </TouchableHighlight>
@@ -463,7 +485,7 @@ class Pear extends Component {
     } else {
       return (
         <TouchableHighlight style={styles.audioControlButtonOff}
-                            underlayColor="#e0e0e0"
+                            underlayColor={GREY}
                             onPress={this.onMuteButtonPressed.bind(this)}>
           <Image source={require('image!muteOff')} style={{width: 17, height: 20,}} />
         </TouchableHighlight>
@@ -475,7 +497,7 @@ class Pear extends Component {
     if (this.state.speakerOn) {
       return (
         <TouchableHighlight style={styles.audioControlButtonOn}
-                            underlayColor="#e0e0e0"
+                            underlayColor={GREY}
                             onPress={this.onSpeakerButtonPressed.bind(this)}>
           <Image source={require('image!speakerOn')} style={{width: 20, height: 20,}} />
         </TouchableHighlight>
@@ -483,7 +505,7 @@ class Pear extends Component {
     } else {
       return (
         <TouchableHighlight style={styles.audioControlButtonOff}
-                            underlayColor="#e0e0e0"
+                            underlayColor={GREY}
                             onPress={this.onSpeakerButtonPressed.bind(this)}>
           <Image source={require('image!speakerOff')} style={{width: 20, height: 20,}} />
         </TouchableHighlight>
@@ -496,13 +518,67 @@ class Pear extends Component {
     this.setState({fresh: false});
   }
 
+  linearGradualBackgroundShiftStart(x, y, callback) {
+    var z = this.state.bgColor;
+    var zStr = '';
+    var zHex = [];
+    var xHex = [];
+    var yHex = [];
+    var diffHex= [];
+    var iMax = 0;
+
+    for (var i = 1; i <= 5; i += 2) {
+      zHex.push(parseInt(z.slice(i, i+2), 16));
+      xHex.push(parseInt(x.slice(i, i+2), 16));
+      yHex.push(parseInt(y.slice(i, i+2), 16));
+      diffHex.push(parseInt(x.slice(i, i+2), 16) - parseInt(y.slice(i, i+2), 16));
+    }
+
+    for (var i = 1; i < 3; i++) {
+      if (diffHex[i] > diffHex[i-1]) {
+        iMax = i;
+      }
+    }
+
+    var gradientInterval = setInterval(() => {
+      zStr = '#';
+      if (diffHex[iMax] === 0) {
+        /* End interval */
+        clearInterval(gradientInterval);
+        callback();
+      } else {
+        for (var i = 0; i < 3; i++) {
+          if (diffHex[i] > 0) {
+            if (diffHex[i] < 6) {
+              diffHex[i]--;
+              zHex[i]--;
+            } else {
+              diffHex[i] -= 6;
+              zHex[i] -= 6;
+            }
+          } else if (diffHex[i] < 0) {
+            if (diffHex[i] < 6) {
+              diffHex[i]++;
+              zHex[i]++;
+            } else {
+              diffHex[i] += 6;
+              zHex[i] += 6;
+            }
+          }
+          zStr += zHex[i].toString(16);
+        }
+        this.setState({bgColor: zStr});
+      }
+    }, 4);
+  }
+
   onCallButtonPressed() {
-    var roomNameVal = this.state.hashTagText.toLowerCase().replace(/@|#| /g, '').slice(0, 21);
-    /* Connect to server to peer */
-    socket = io('https://react-native-webrtc.herokuapp.com/', { query: 'secret=abcde', forceNew: true });
-    listen(roomNameVal);
+    /* Connect to server and peer */
+    socket = io('https://stark-plains-31370.herokuapp.com/api/webrtc', { query: 'secret=abcde', forceNew: true });
+    listen();
     /* UI change */
-    this.setState({
+    this.linearGradualBackgroundShiftStart(RED, BLUE, () => {
+      this.setState({
       callStartTime: new Date(),
       callInterval: setInterval(() => { 
         var mss = Math.floor((new Date() - this.state.callStartTime) / 1000);
@@ -512,7 +588,9 @@ class Pear extends Component {
         minutes > 9 ? minutes = minutes.toString() : minutes = '0' + minutes.toString();
         this.setState({callDeltaTime: minutes + ':' + secs});
       }, 1000),
-      calling: true
+      calling: true,
+      bgColor: BLUE,
+    });
     });
   }
 
@@ -522,19 +600,22 @@ class Pear extends Component {
 
   onMuteButtonPressed() {
     if (this.state.micMuted) {
+      // unMute
       this.setState({micMuted: false});
     } else {
+      // mute
+      console.log(localStream);
       this.setState({micMuted: true});
     }
   }
 
   onSpeakerButtonPressed() {
     if (this.state.speakerOn) {
-      RTCSetting.setAudioOutput('handset');
       this.setState({speakerOn: false});
+      RTCSetting.setAudioOutput('handset');
     } else {
-      RTCSetting.setAudioOutput('speaker');
       this.setState({speakerOn: true});
+      RTCSetting.setAudioOutput('speaker');
     }
   }  /* Button event end */
 
@@ -562,17 +643,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
-    backgroundColor: '#ff6169',
   },
   callTopContainer: {
     flex: 0.60,
-    backgroundColor: '#ff6169',
+    backgroundColor: 'transparent',
     justifyContent: 'center',
     alignItems: 'center',
   },
   hangupTopContainer: {
     flex: 0.57,
-    backgroundColor: '#26476b',
+    backgroundColor: 'transparent',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -587,23 +667,24 @@ const styles = StyleSheet.create({
   deltaTextContainer: {
     flex: 0.7,
     justifyContent: 'flex-start',
+    backgroundColor: 'transparent',
   },
   deltaText: {
-    fontSize: 32,
+    fontSize: 38, // 32
     color: 'white',
   },
   callMiddleContainer: {
     flex: 0.1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#ff6169',
+    backgroundColor: 'transparent',
     flexDirection: 'column',
   },
   hangupMiddleContainer: {
     flex: 0.13,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#26476b',
+    backgroundColor: 'transparent',
     flexDirection: 'row',
   },
   hashTagInput: {
@@ -611,31 +692,27 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width-20,
     paddingLeft: 15,
     paddingRight: 15,
-    backgroundColor: '#ff6169',
+    backgroundColor: 'transparent',
     color: 'white',
     fontSize: 20,
     alignSelf: 'center',
     textAlign: 'center',
   },
-  callDivideContainer: {
+  divideContainer: {
     flex: 0.05,
-    backgroundColor: '#ff6169',
-  },
-  hangupDivideContainer: {
-    flex: 0.05,
-    backgroundColor: '#26476b',
+    backgroundColor: 'transparent',
   },
   callButtonContainer: {
     flex: 0.25,
     alignItems: 'center',
     justifyContent: 'flex-start',
-    backgroundColor: '#ff6169',
+    backgroundColor: 'transparent',
   },
   hangupButtonContainer: {
     flex: 0.25,
     alignItems: 'center',
     justifyContent: 'flex-start',
-    backgroundColor: '#26476b',
+    backgroundColor: 'transparent',
   },
   circleButton: {
     height: 90,
@@ -645,19 +722,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  callButtonText: {
+  circleButtonText: {
     fontSize: 18,
-    color: '#ff6169',
-  },
-  hangupButtonText: {
-    fontSize: 18,
-    color: '#26476b',
   },
   audioControlButtonOff: {
     height: 60,
     width: 60,
     borderRadius: 45,
-    backgroundColor: '#26476b',
+    backgroundColor: 'transparent',
     borderWidth: 1,
     borderColor: 'white',
     alignItems: 'center',
