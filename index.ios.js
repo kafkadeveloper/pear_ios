@@ -151,6 +151,8 @@ function logError(error) {
 function hangup() {
   /* UI change */
   clearInterval(component.state.callInterval);
+  component.linearGradualBackgroundShiftRed(component, () => {
+  });
   component.setState({calling: false, 
                       callDeltaTime: '00:00', 
                       /*remoteSrc:null,*/
@@ -178,11 +180,10 @@ function call() {
     let id = makeRoomId();
     let roomName = '';
 
-    join({name: roomName, 
-          id: roomName + '@' + id, 
+    join({room: makeRoomId(),
           uuid: DeviceInfo.getUniqueID(),
           appv: DeviceInfo.getReadableVersion(),
-          lang: DeviceInfo.getReadableVersion(),
+          lang: DeviceInfo.getDeviceLocale(),
           loc: component.state.loc});
   });
 
@@ -411,7 +412,7 @@ class Pear extends Component {
             <TouchableHighlight style={styles.circleButton}
                                 underlayColor={GREY}
                                 onPress={this.onCallButtonPressed.bind(this)}>
-              <Text style={styles.circleButtonText, {color: this.state.bgOverlayColor}}>Call</Text>
+              <Text style={styles.circleButtonText, {color: RED}}>Call</Text>
             </TouchableHighlight>
           </View>
         </View>
@@ -426,7 +427,6 @@ class Pear extends Component {
           <View style={styles.topContainer}>
 
             <View style={styles.callingTextContainer}>
-              <Text style={styles.callingText}>Calling</Text>
             </View>
             <View style={styles.deltaTextContainer}>
               <Text style={styles.deltaText}>{this.state.callDeltaTime}</Text>
@@ -443,7 +443,7 @@ class Pear extends Component {
             <TouchableHighlight style={styles.circleButton}
                                 underlayColor={GREY}
                                 onPress={this.onHangupButtonPressed.bind(this)}>
-              <Text style={styles.circleButtonText, {color: this.state.bgOverlayColor}}>Hang up</Text>
+              <Text style={styles.circleButtonText, {color: BLUE}}>Hang up</Text>
             </TouchableHighlight>
           </View>
         </View>
@@ -496,16 +496,16 @@ class Pear extends Component {
     this.setState({fresh: false});
   }
 
-  linearGradualBackgroundShiftRed(callback) {
+  linearGradualBackgroundShiftRed(owner, callback) {
     let d = 1;
 
     let gradientInterval = setInterval(() => {
       if (d < 0) {
         clearInterval(gradientInterval);
-        this.setState({bgOverlayColor: RED});
+        owner.setState({bgOverlayColor: RED});
         callback();
       } else {
-        this.setState({bgOverlayColor: BLUE_RGBA.replace('x', d)});
+        owner.setState({bgOverlayColor: BLUE_RGBA.replace('x', d)});
       }
       d -= 0.05;
     }, 18);
@@ -540,6 +540,7 @@ class Pear extends Component {
           let minutes = Math.floor(mss / 60);
           secs > 9 ? secs = secs.toString() : secs = '0' + secs.toString();
           minutes > 9 ? minutes = minutes.toString() : minutes = '0' + minutes.toString();
+          console.log(minutes + ':' + secs);
           this.setState({callDeltaTime: minutes + ':' + secs});
         }, 1000),
         calling: true,
@@ -548,8 +549,6 @@ class Pear extends Component {
   }
 
   onHangupButtonPressed() {
-    this.linearGradualBackgroundShiftRed(() => {
-    });
     hangup();
   } 
 
@@ -599,7 +598,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   deltaText: {
-    fontSize: 38,
+    fontSize: 32,
     color: 'white',
   },
   middleContainer: {
