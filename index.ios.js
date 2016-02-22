@@ -54,42 +54,38 @@ function createPC(socketId, isOffer) {
 
   function createOffer() {
     pc.createOffer(desc => {
-      // console.log('createOffer', desc);
-      console.log('createOffer');
       pc.setLocalDescription(desc, () => {
-        // console.log('setLocalDescription', pc.localDescription);
-        console.log('setLocalDescription');
         socket.emit('exchange', {'to': socketId, 'sdp': pc.localDescription});
       }, logError);
     }, logError);
   }
 
   pc.onicecandidate = event => {
-    // console.log('onicecandidate', event.candidate);
-    console.log('onicecandidate');
     if (event.candidate) {
       socket.emit('exchange', {'to': socketId, 'candidate': event.candidate});
     }
   };
   pc.onnegotiationneeded = () => {
-    console.log('onnegotiationneeded');
     if (isOffer) {
       createOffer();
     }
   };
   pc.oniceconnectionstatechange = event => {
     console.log('oniceconnectionstatechange', event.target.iceConnectionState);
+    if (event.target.iceConnectionState === 'connected' || 
+        event.target.iceConnectionState === 'completed') {
+      socket.disconnect();
+      component.callTimeIntervalStart();
+    } else if (event.target.iceConnectionState === 'disconnected') {
+      hangup();
+    }
   };
   pc.onsignalingstatechange = event => {
-    console.log('onsignalingstatechange', event.target.signalingState);
+    // console.log('onsignalingstatechange', event.target.signalingState);
   };
   pc.onaddstream = event => {
-    // console.log('onaddstream', event.stream);
-    console.log('onaddstream');
-    /*component.setState({remoteSrc: event.stream.toURL()});*/
-  };
-  pc.onremovestream = event => {
-    console.log('onremovestream', event);
+    // component.setState({remoteSrc: event.stream.toURL()});
+    // add stream to state
   };
 
   pc.addStream(localStream);
@@ -106,30 +102,21 @@ function exchange(data) {
   }
 
   if (data.sdp) {
-    // console.log('exchange sdp', data);
-    console.log('exchange sdp');
     pc.setRemoteDescription(new RTCSessionDescription(data.sdp), () => {
       if (pc.remoteDescription.type == "offer") {
-        pc.createAnswer(desc => {
-          // console.log('createAnswer', desc);
-          console.log('createAnswer');
+        pc.createAnswer(desc => {          
           pc.setLocalDescription(desc, () => {
-            // console.log('setLocalDescription', pc.localDescription);
-            console.log('setLocalDescription');
             socket.emit('exchange', {'to': fromId, 'sdp': pc.localDescription});
           }, logError);
         }, logError);
       }
     }, logError);
   } else {
-    // console.log('exchange candidate', data);
-    console.log('exchange candidate');
     pc.addIceCandidate(new RTCIceCandidate(data.candidate));
   }
 }
 
 function join(roomId) {
-  console.log('joinRoom');
   socket.emit('join', roomId, socketIds => {
     for (let i in socketIds) {
       createPC(socketIds[i], true);
@@ -149,16 +136,7 @@ function logError(error) {
 }
 
 function hangup() {
-  /* UI change */
-  clearInterval(component.state.callInterval);
-  component.linearGradualBackgroundShiftRed(component, () => {
-  });
-  component.setState({calling: false, 
-                      callDeltaTime: '00:00', 
-                      /*remoteSrc:null,*/
-                      micMuted: false,
-                      speakerOn: false});
-  // unmute
+  component.setState({buttonAble: false});
 
   /* Disconnect from server */
   socket.disconnect();
@@ -169,22 +147,33 @@ function hangup() {
     delete pcPeers[socketId];
   }
 
+  /* UI change */
+  component.linearGradualBackgroundShiftRed(component, () => {
+    clearInterval(component.state.callInterval);
+    component.setState({calling: false, 
+                        callDeltaTime: 'calling...', 
+                        /*remoteSrc:null,*/
+                        micMuted: false,
+                        speakerOn: false,
+                        buttonAble: true,});
+  });
+
   /* Hangup setting */
   RTCSetting.setProximityScreenOff(false);
+  // unmute
 }
 
 function call() {
   getLocalStream(stream => {
     localStream = stream;
 
-    let id = makeRoomId();
-    let roomName = '';
+    let info = DeviceInfo.getReadableVersion() + '@' +
+               DeviceInfo.getUniqueID() + '@' +
+               DeviceInfo.getDeviceLocale() + '@' +
+               component.state.loc;
 
-    join({room: makeRoomId(),
-          uuid: DeviceInfo.getUniqueID(),
-          appv: DeviceInfo.getReadableVersion(),
-          lang: DeviceInfo.getDeviceLocale(),
-          loc: component.state.loc});
+    join({room: makeRoomId(), info: info});
+    component.setState({buttonAble: true});
   });
 
   /* Set call settings */
@@ -200,10 +189,6 @@ function listen() {
     hangup();
   });
 
-  socket.on('end', () => {
-    hangup();
-  });
-
   socket.on('connect', data => {
     call();
   });
@@ -211,8 +196,6 @@ function listen() {
   socket.on('exchange', data => {
     exchange(data);
   });
-
-  console.log('listening');
 }
 
 function getLoc(callback) {
@@ -248,21 +231,27 @@ class Pear extends Component {
       bgOverlayColor: RED,
 
       calling: false,
-      /*remoteSrc: null,*/
+      buttonAble: true,
+      // remoteSrc: null,
 
       micMuted: false,
       speakerOn: false,
 
       callStartTime: null,
-      callDeltaTime: '00:00',
+      callDeltaTime: 'calling...',
       callInterval: null,
     }
   }
 
   componentDidMount() {
+    console.log('mount');
     component = this;
     this._checkFreshAndMicState().done;
     this._checkAndUpdateUptAndLocState().done;
+  }
+
+  componentWillUnmount() {
+    console.log('unmount');
   }
 
   /* Async storage methods */
@@ -411,8 +400,8 @@ class Pear extends Component {
           <View style={styles.bottomContainer}>
             <TouchableHighlight style={styles.circleButton}
                                 underlayColor={GREY}
-                                onPress={this.onCallButtonPressed.bind(this)}>
-              <Text style={styles.circleButtonText, {color: RED}}>Call</Text>
+                                onPress={this.state.buttonAble ? this.onCallButtonPressed.bind(this) : null}>
+              <Image source={require('image!call')} style={{width: 30, height: 30,}} />
             </TouchableHighlight>
           </View>
         </View>
@@ -442,8 +431,8 @@ class Pear extends Component {
           <View style={styles.bottomContainer}>
             <TouchableHighlight style={styles.circleButton}
                                 underlayColor={GREY}
-                                onPress={this.onHangupButtonPressed.bind(this)}>
-              <Text style={styles.circleButtonText, {color: BLUE}}>Hang up</Text>
+                                onPress={this.state.buttonAble ? this.onHangupButtonPressed.bind(this) : null}>
+              <Image source={require('image!hangup')} style={{width: 36, height: 36,}} />
             </TouchableHighlight>
           </View>
         </View>
@@ -525,30 +514,36 @@ class Pear extends Component {
     }, 18);
   }
 
+  callTimeIntervalStart() {
+    this.setState({callDeltaTime: '00:00'});
+    this.setState({
+      callStartTime: new Date(),
+      callInterval: setInterval(() => { 
+        let mss = Math.floor((new Date() - this.state.callStartTime) / 1000);
+        let secs = mss % 60;
+        let minutes = Math.floor(mss / 60);
+        secs > 9 ? secs = secs.toString() : secs = '0' + secs.toString();
+        minutes > 9 ? minutes = minutes.toString() : minutes = '0' + minutes.toString();
+        this.setState({callDeltaTime: minutes + ':' + secs});
+      }, 1000),
+    });
+  }
+
   onCallButtonPressed() {
+    this.setState({buttonAble: false});
+
     socket = io('https://stark-plains-31370.herokuapp.com/api/webrtc', 
                 { query: 'secret=abcde', forceNew: true });
     listen();
 
     /* UI change */
     this.linearGradualBackgroundShiftBlue(() => {
-      this.setState({
-        callStartTime: new Date(),
-        callInterval: setInterval(() => { 
-          let mss = Math.floor((new Date() - this.state.callStartTime) / 1000);
-          let secs = mss % 60;
-          let minutes = Math.floor(mss / 60);
-          secs > 9 ? secs = secs.toString() : secs = '0' + secs.toString();
-          minutes > 9 ? minutes = minutes.toString() : minutes = '0' + minutes.toString();
-          console.log(minutes + ':' + secs);
-          this.setState({callDeltaTime: minutes + ':' + secs});
-        }, 1000),
-        calling: true,
-      });
+      this.setState({calling: true});
     });
   }
 
   onHangupButtonPressed() {
+    this.setState({buttonAble: false});
     hangup();
   } 
 
@@ -622,9 +617,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  circleButtonText: {
-    fontSize: 18,
   },
   audioControlButtonOff: {
     height: 60,
