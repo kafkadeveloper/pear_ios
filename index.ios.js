@@ -35,7 +35,7 @@ const STORAGE_UPT = '@PearStorage:upt' + REV;
 /* Color palette */
 const RED = '#ff6169';
 const BLUE = '#26476b';
-const GREY = '#f6f6f6';
+const GREY = '#e0e0e0';
 const RED_RGBA = 'rgba(255, 97, 105, x)';
 const BLUE_RGBA = 'rgba(38, 71, 107, x)';
 
