@@ -12,6 +12,9 @@ import React, {
   Image,
   AsyncStorage,
   DeviceEventEmitter,
+  Animated,
+  VibrationIOS,
+  StatusBarIOS,
 } from 'react-native';
 import WebRTC, {
   RTCPeerConnection,
@@ -22,6 +25,7 @@ import WebRTC, {
   RTCSetting,
 } from 'react-native-webrtc';
 import DeviceInfo from 'react-native-device-info';
+import Animatable from 'react-native-animatable';
 window.navigator.userAgent = 'react-native';
 let io = require('socket.io-client/socket.io');
 
@@ -76,8 +80,9 @@ function createPC(socketId, isOffer) {
         event.target.iceConnectionState === 'completed') {
       socket.disconnect();
       component.callTimeIntervalStart();
+      VibrationIOS.vibrate();
     } else if (event.target.iceConnectionState === 'disconnected') {
-      hangup();
+      component.onHangupButtonPressed();
     }
   };
   pc.onsignalingstatechange = event => {
@@ -136,8 +141,6 @@ function logError(error) {
 }
 
 function hangup() {
-  component.setState({buttonAble: false});
-
   /* Disconnect from server */
   socket.disconnect();
 
@@ -147,20 +150,12 @@ function hangup() {
     delete pcPeers[socketId];
   }
 
-  /* UI change */
-  component.linearGradualBackgroundShiftRed(component, () => {
-    clearInterval(component.state.callInterval);
-    component.setState({calling: false, 
-                        callDeltaTime: 'calling...', 
-                        /*remoteSrc:null,*/
-                        micMuted: false,
-                        speakerOn: false,
-                        buttonAble: true,});
-  });
-
   /* Hangup setting */
   RTCSetting.setProximityScreenOff(false);
-  // unmute
+  StatusBarIOS.setNetworkActivityIndicatorVisible(false);
+  // TODO unmute
+
+  component.setState({buttonAble: true});
 }
 
 function call() {
@@ -177,6 +172,7 @@ function call() {
   });
 
   /* Set call settings */
+  StatusBarIOS.setNetworkActivityIndicatorVisible(true);
   RTCSetting.setAudioOutput('handset');
   RTCSetting.setKeepScreenOn(false);
   RTCSetting.setProximityScreenOff(true);
@@ -186,7 +182,7 @@ function listen() {
   // is this the right way to do this?
   socket.on('connect_error', data => {
     console.log('connect error', data);
-    hangup();
+    component.onHangupButtonPressed();
   });
 
   socket.on('connect', data => {
@@ -240,7 +236,7 @@ class Pear extends Component {
       callStartTime: null,
       callDeltaTime: 'calling...',
       callInterval: null,
-    }
+    };
   }
 
   componentDidMount() {
@@ -263,7 +259,7 @@ class Pear extends Component {
       /* First-ever loading */
       if (!freshValue) {
         this.setState({fresh: true, micPermission: 'NO'});
-        await AsyncStorage.setItem(STORAGE_FRESH, new Date());
+        await AsyncStorage.setItem(STORAGE_FRESH, new Date().toString());
         await AsyncStorage.setItem(STORAGE_MIC, 'NO');
       } else {
         /* Subsequent loading */
@@ -284,7 +280,7 @@ class Pear extends Component {
         console.log('update loc state');
         await getLoc(currLoc => {
           if (currLoc) {
-            let currTime = new Date();
+            let currTime = new Date().toString();
             AsyncStorage.setItem(STORAGE_LOC, currLoc);
             AsyncStorage.setItem(STORAGE_UPT, currTime);
             if (this.state.loc !== currLoc) {
@@ -317,6 +313,7 @@ class Pear extends Component {
   }  /* Async storage methods end */
 
   render() {
+    RTCSetting.setKeepScreenOn(false); // DEV
     /* Loading screen */
     // if (this.state.loading) {
     //   return this.renderLoadingView();
@@ -352,7 +349,7 @@ class Pear extends Component {
           <Text style={{alignSelf: 'center', color:'white', fontSize:30}}>Welcome screen</Text>
         </View>
         <View style={{flex: 0.5, justifyContent: 'center', alignItems:'center'}}>
-          <TouchableHighlight style={{width: 200, height: 40,alignItems:'center',justifyContent:'center', borderWidth:1, borderColor:'white', borderRadius:13, backgroundColor: 'transparent'}}
+          <TouchableHighlight style={{width: 200, height: 40, alignItems:'center',justifyContent:'center', borderWidth:1, borderColor:'white', borderRadius:13, backgroundColor: 'transparent'}}
                               underlayColor={GREY}
                               onPress={this.onWelcomeButtonPressed.bind(this)}>
             <Text style={{color: 'white', fontSize: 18}}>Let's get started 😀</Text>
@@ -387,6 +384,10 @@ class Pear extends Component {
     );
   }
 
+  onAnimationButton() {
+    
+  }
+
   renderCallView() {
     return (
       <View style={styles.container}>
@@ -395,15 +396,15 @@ class Pear extends Component {
           </View>
           <View style={styles.middleContainer}>
           </View>
-          <View style={styles.divideContainer}>
+          <View style={styles.divideContainer} animation="bounceIn">
           </View>
-          <View style={styles.bottomContainer}>
+          <Animatable.View style={styles.bottomContainer} animation="bounceIn" ref="aniviewcall">
             <TouchableHighlight style={styles.circleButton}
                                 underlayColor={GREY}
                                 onPress={this.state.buttonAble ? this.onCallButtonPressed.bind(this) : null}>
               <Image source={require('image!call')} style={{width: 30, height: 30,}} />
             </TouchableHighlight>
-          </View>
+          </Animatable.View>
         </View>
       </View>
     );
@@ -414,27 +415,27 @@ class Pear extends Component {
       <View style={styles.container}>
         <View style={{flex: 1, flexDirection: 'column', backgroundColor: this.state.bgOverlayColor}}>
           <View style={styles.topContainer}>
-
             <View style={styles.callingTextContainer}>
             </View>
             <View style={styles.deltaTextContainer}>
-              <Text style={styles.deltaText}>{this.state.callDeltaTime}</Text>
+              <Animatable.Text style={styles.deltaText} animation="bounceInDown" ref="aniviewdelta">
+                {this.state.callDeltaTime}
+              </Animatable.Text>
             </View>
-
           </View>
-          <View style={styles.middleContainer}>
+          <Animatable.View style={styles.middleContainer} animation="bounceIn" ref="aniviewopt">
             {this.renderMuteButton()}
             {this.renderSpeakerButton()}
-          </View>
+          </Animatable.View>
           <View style={styles.divideContainer}>
           </View>
-          <View style={styles.bottomContainer}>
+          <Animatable.View style={styles.bottomContainer} animation="bounceInUp" ref="aniviewhang">
             <TouchableHighlight style={styles.circleButton}
                                 underlayColor={GREY}
                                 onPress={this.state.buttonAble ? this.onHangupButtonPressed.bind(this) : null}>
               <Image source={require('image!hangup')} style={{width: 36, height: 36,}} />
             </TouchableHighlight>
-          </View>
+          </Animatable.View>
         </View>
       </View>
     );
@@ -485,23 +486,22 @@ class Pear extends Component {
     this.setState({fresh: false});
   }
 
-  linearGradualBackgroundShiftRed(owner, callback) {
-    let d = 1;
+  linearGradualBackgroundShiftRed(callback) {
+    let d = 0.9;
 
     let gradientInterval = setInterval(() => {
       if (d < 0) {
         clearInterval(gradientInterval);
-        owner.setState({bgOverlayColor: RED});
         callback();
       } else {
-        owner.setState({bgOverlayColor: BLUE_RGBA.replace('x', d)});
+        this.setState({bgOverlayColor: BLUE_RGBA.replace('x', d)});
       }
       d -= 0.05;
-    }, 18);
+    }, 30);
   }
 
   linearGradualBackgroundShiftBlue(callback) {
-    let d = 0.05;
+    let d = 0.1;
 
     let gradientInterval = setInterval(() => {
       if (d > 1) {
@@ -511,7 +511,7 @@ class Pear extends Component {
         this.setState({bgOverlayColor: BLUE_RGBA.replace('x', d)});
       }
       d += 0.05;
-    }, 18);
+    }, 30);
   }
 
   callTimeIntervalStart() {
@@ -532,19 +532,29 @@ class Pear extends Component {
   onCallButtonPressed() {
     this.setState({buttonAble: false});
 
-    socket = io('https://stark-plains-31370.herokuapp.com/api/webrtc', 
-                { query: 'secret=abcde', forceNew: true });
-    listen();
-
     /* UI change */
+    this.refs.aniviewcall.zoomOutDown(600).then( endstate => {});
     this.linearGradualBackgroundShiftBlue(() => {
-      this.setState({calling: true});
+      this.setState({calling: true, callingDeltaTime: 'calling...'});
+      socket = io('https://stark-plains-31370.herokuapp.com/api/webrtc', { query: 'secret=abcde', forceNew: true });
+      listen();
     });
   }
 
   onHangupButtonPressed() {
     this.setState({buttonAble: false});
-    hangup();
+
+    /* UI change */
+    this.refs.aniviewdelta.zoomOut(600).then( endstate => {});
+    this.refs.aniviewopt.zoomOut(600).then( endstate => {});
+    this.refs.aniviewhang.zoomOut(600).then( endstate => {});
+    this.linearGradualBackgroundShiftRed(() => {
+      clearInterval(this.state.callInterval);
+      this.setState({calling: false, 
+                     micMuted: false,
+                     speakerOn: false});
+      hangup();
+    });
   } 
 
   onMuteButtonPressed() {
