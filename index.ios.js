@@ -60,6 +60,7 @@ function createPC(socketId, isOffer) {
     pc.createOffer(desc => {
       pc.setLocalDescription(desc, () => {
         socket.emit('exchange', {'to': socketId, 'sdp': pc.localDescription});
+        socket.emit('lochange', {'to': socketId, 'loc': component.state.loc, 'offer': true});
       }, logError);
     }, logError);
   }
@@ -106,6 +107,10 @@ function exchange(data) {
     pc = createPC(fromId, false);
   }
 
+  // if (data.candidate) {
+  //   console.log('exchange', data.candidate.candidate.split(' ')[4]);
+  // }
+
   if (data.sdp) {
     pc.setRemoteDescription(new RTCSessionDescription(data.sdp), () => {
       if (pc.remoteDescription.type == "offer") {
@@ -151,8 +156,9 @@ function hangup() {
   }
 
   /* Hangup setting */
-  RTCSetting.setProximityScreenOff(false);
   StatusBarIOS.setNetworkActivityIndicatorVisible(false);
+  RTCSetting.setProximityScreenOff(false);
+  RTCSetting.setKeepScreenOn(false);
   // TODO unmute
 
   component.setState({buttonAble: true});
@@ -174,8 +180,8 @@ function call() {
   /* Set call settings */
   StatusBarIOS.setNetworkActivityIndicatorVisible(true);
   RTCSetting.setAudioOutput('handset');
-  RTCSetting.setKeepScreenOn(false);
   RTCSetting.setProximityScreenOff(true);
+  RTCSetting.setKeepScreenOn(true);
 }
 
 function listen() {
@@ -191,6 +197,13 @@ function listen() {
 
   socket.on('exchange', data => {
     exchange(data);
+  });
+
+  socket.on('lochange', data=> {
+    console.log('lochange', data.loc)
+    if (data.offer) {
+      socket.emit('lochange', {'to': data.from, 'loc': component.state.loc, 'offer': false});
+    }
   });
 }
 
@@ -313,7 +326,6 @@ class Pear extends Component {
   }  /* Async storage methods end */
 
   render() {
-    RTCSetting.setKeepScreenOn(false); // DEV
     /* Loading screen */
     // if (this.state.loading) {
     //   return this.renderLoadingView();
