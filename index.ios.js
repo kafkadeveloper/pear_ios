@@ -28,9 +28,10 @@ import DeviceInfo from 'react-native-device-info';
 import Animatable from 'react-native-animatable';
 window.navigator.userAgent = 'react-native';
 let io = require('socket.io-client/socket.io');
+let isocountry = require('./js/isocountry.js');
 
 /* Permanent storage keys */
-const REV = '21'
+const REV = '22'
 const STORAGE_FRESH = '@PearStorage:fresh' + REV;
 const STORAGE_MIC = '@PearStorage:mic' + REV;
 const STORAGE_LOC = '@PearStorage:loc' + REV;
@@ -48,6 +49,7 @@ const pcPeers = {};
 let localStream;
 let socket;
 let component;
+let tempPeerLoc;
 const PC_CONFIG = {"iceServers": [{"url": "stun:stun.l.google.com:19302"},
                                   {"url": "stun:stun.services.mozilla.com"}]};
 
@@ -79,9 +81,12 @@ function createPC(socketId, isOffer) {
     console.log('oniceconnectionstatechange', event.target.iceConnectionState);
     if (event.target.iceConnectionState === 'connected' || 
         event.target.iceConnectionState === 'completed') {
-      socket.disconnect();
-      component.callTimeIntervalStart();
-      VibrationIOS.vibrate();
+      if (!component.state.peerLoc) {   /* Prevent hitting both connected and completed */
+        socket.disconnect();
+        component.callTimeIntervalStart();
+        component.setState({peerLoc: tempPeerLoc});
+        VibrationIOS.vibrate();
+      }
     } else if (event.target.iceConnectionState === 'disconnected') {
       component.onHangupButtonPressed();
     }
@@ -200,7 +205,7 @@ function listen() {
   });
 
   socket.on('lochange', data=> {
-    console.log('lochange', data.loc)
+    tempPeerLoc = isocountry(data.loc);
     if (data.offer) {
       socket.emit('lochange', {'to': data.from, 'loc': component.state.loc, 'offer': false});
     }
@@ -212,7 +217,7 @@ function getLoc(callback) {
   fetch(url).then(res => {
     return res.text();
   }).then(body => {
-    if (body.trim().length > 5) {
+    if (body.trim().length != 2) {
       callback();
     } else {
       callback(body.trim());
@@ -246,6 +251,7 @@ class Pear extends Component {
       micMuted: false,
       speakerOn: false,
 
+      peerLoc: '',
       callStartTime: null,
       callDeltaTime: 'calling...',
       callInterval: null,
@@ -306,8 +312,6 @@ class Pear extends Component {
           console.log('retrieve loc state');
           let locValue = await AsyncStorage.getItem(STORAGE_LOC);
           this.setState({loc: locValue});
-        } else {
-          console.log('loc state already available');
         }
       }
     } catch (error) {
@@ -396,10 +400,6 @@ class Pear extends Component {
     );
   }
 
-  onAnimationButton() {
-    
-  }
-
   renderCallView() {
     return (
       <View style={styles.container}>
@@ -408,8 +408,7 @@ class Pear extends Component {
           </View>
           <View style={styles.middleContainer}>
           </View>
-          <View style={styles.divideContainer} animation="bounceIn">
-          </View>
+          <View style={styles.divideContainer}></View>
           <Animatable.View style={styles.bottomContainer} animation="bounceIn" ref="aniviewcall">
             <TouchableHighlight style={styles.circleButton}
                                 underlayColor={GREY}
@@ -427,8 +426,14 @@ class Pear extends Component {
       <View style={styles.container}>
         <View style={{flex: 1, flexDirection: 'column', backgroundColor: this.state.bgOverlayColor}}>
           <View style={styles.topContainer}>
-            <View style={styles.callingTextContainer}>
+            <View style={styles.divideContainerx2}></View>
+            <View style={styles.divideContainerx2}></View>
+            <View style={styles.flagTextContainer}>
+              <Animatable.Text style={styles.flagText} animation="bounceIn" ref="aniviewflag">
+                {this.state.peerLoc}
+              </Animatable.Text>
             </View>
+            <View style={styles.divideContainer}></View>
             <View style={styles.deltaTextContainer}>
               <Animatable.Text style={styles.deltaText} animation="bounceInDown" ref="aniviewdelta">
                 {this.state.callDeltaTime}
@@ -439,8 +444,7 @@ class Pear extends Component {
             {this.renderMuteButton()}
             {this.renderSpeakerButton()}
           </Animatable.View>
-          <View style={styles.divideContainer}>
-          </View>
+          <View style={styles.divideContainer}></View>
           <Animatable.View style={styles.bottomContainer} animation="bounceInUp" ref="aniviewhang">
             <TouchableHighlight style={styles.circleButton}
                                 underlayColor={GREY}
@@ -557,6 +561,7 @@ class Pear extends Component {
     this.setState({buttonAble: false});
 
     /* UI change */
+    this.refs.aniviewflag.zoomOut(600).then( endstate => {});
     this.refs.aniviewdelta.zoomOut(600).then( endstate => {});
     this.refs.aniviewopt.zoomOut(600).then( endstate => {});
     this.refs.aniviewhang.zoomOut(600).then( endstate => {});
@@ -564,7 +569,8 @@ class Pear extends Component {
       clearInterval(this.state.callInterval);
       this.setState({calling: false, 
                      micMuted: false,
-                     speakerOn: false});
+                     speakerOn: false,
+                     peerLoc: ''});
       hangup();
     });
   } 
@@ -602,20 +608,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  callingTextContainer: {
-    flex: 0.4,
-    justifyContent: 'center',
+  flagTextContainer: {
+    flex: 0.15,
+    justifyContent: 'flex-end',
   },
-  callingText: {
-    fontSize: 18,
+  flagText: {
+    fontSize: 24,
     color: 'white',
   },
   deltaTextContainer: {
-    flex: 0.7,
+    flex: 0.6,
     justifyContent: 'flex-start',
   },
   deltaText: {
-    fontSize: 32,
+    fontSize: 34,
     color: 'white',
   },
   middleContainer: {
@@ -626,6 +632,9 @@ const styles = StyleSheet.create({
   },
   divideContainer: {
     flex: 0.05,
+  },
+  divideContainerx2: {
+    flex: 0.1,
   },
   bottomContainer: {
     flex: 0.25,
