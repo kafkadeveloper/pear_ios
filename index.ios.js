@@ -7,14 +7,12 @@ import React, {
   View,
   ScrollView,
   Text,
-  TextInput,
   TouchableHighlight,
   Image,
   AsyncStorage,
-  DeviceEventEmitter,
-  Animated,
   VibrationIOS,
   StatusBarIOS,
+  Modal,
 } from 'react-native';
 import WebRTC, {
   RTCPeerConnection,
@@ -26,9 +24,11 @@ import WebRTC, {
 } from 'react-native-webrtc';
 import DeviceInfo from 'react-native-device-info';
 import Animatable from 'react-native-animatable';
+import Swiper from 'react-native-swiper';
+import AboutView from './js/AboutView';
 window.navigator.userAgent = 'react-native';
 let io = require('socket.io-client/socket.io');
-let isocountry = require('./js/isocountry.js');
+let isocountry = require('./js/isocountry');
 
 /* Permanent storage keys */
 const REV = '22'
@@ -111,10 +111,6 @@ function exchange(data) {
   } else {
     pc = createPC(fromId, false);
   }
-
-  // if (data.candidate) {
-  //   console.log('exchange', data.candidate.candidate.split(' ')[4]);
-  // }
 
   if (data.sdp) {
     pc.setRemoteDescription(new RTCSessionDescription(data.sdp), () => {
@@ -246,7 +242,6 @@ class Pear extends Component {
 
       calling: false,
       buttonAble: true,
-      // remoteSrc: null,
 
       micMuted: false,
       speakerOn: false,
@@ -383,41 +378,27 @@ class Pear extends Component {
     );
   }
 
-  renderMainView() {
-    return (
-      <View style={styles.container}>
-        <View style={{flex: 1, flexDirection: 'column', backgroundColor: this.state.bgOverlayColor}}>
-          <View style={styles.topContainer}>
-          </View>
-          <View style={styles.middleContainer}>
-          </View>
-          <View style={styles.divideContainer}>
-          </View>
-          <View style={styles.bottomContainer}>
-          </View>
-        </View>
-      </View>
-    );
-  }
-
   renderCallView() {
     return (
-      <View style={styles.container}>
-        <View style={{flex: 1, flexDirection: 'column', backgroundColor: this.state.bgOverlayColor}}>
-          <View style={styles.topContainer}>
+      <Swiper style={styles.wrapper}  loop={false} index={1} showsPagination={false}>
+        <AboutView bg={RED}/>
+        <View style={styles.container}>
+          <View style={{flex: 1, flexDirection: 'column', backgroundColor: this.state.bgOverlayColor}}>
+            <View style={styles.topContainer}>
+            </View>
+            <View style={styles.middleContainer}>
+            </View>
+            <View style={styles.divideContainer}></View>
+            <Animatable.View style={styles.bottomContainer} animation="bounceIn" ref="aniviewcall">
+              <TouchableHighlight style={styles.circleButton}
+                                  underlayColor={GREY}
+                                  onPress={this.state.buttonAble ? this.onCallButtonPressed.bind(this) : null}>
+                <Image source={require('image!call')} style={{width: 30, height: 30,}} />
+              </TouchableHighlight>
+            </Animatable.View>
           </View>
-          <View style={styles.middleContainer}>
-          </View>
-          <View style={styles.divideContainer}></View>
-          <Animatable.View style={styles.bottomContainer} animation="bounceIn" ref="aniviewcall">
-            <TouchableHighlight style={styles.circleButton}
-                                underlayColor={GREY}
-                                onPress={this.state.buttonAble ? this.onCallButtonPressed.bind(this) : null}>
-              <Image source={require('image!call')} style={{width: 30, height: 30,}} />
-            </TouchableHighlight>
-          </Animatable.View>
         </View>
-      </View>
+      </Swiper>
     );
   }
 
@@ -581,7 +562,6 @@ class Pear extends Component {
       this.setState({micMuted: false});
     } else {
       // mute
-      console.log(localStream);
       this.setState({micMuted: true});
     }
   }
@@ -598,6 +578,9 @@ class Pear extends Component {
 }
 
 const styles = StyleSheet.create({
+  wrapper: {
+
+  },
   container: {
     flex: 1,
     flexDirection: 'column',

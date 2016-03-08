@@ -1,34 +1,35 @@
+
 var isoCountries = {
-  // 'AF' : 'Afghanistan',
-  // 'AX' : 'Aland Islands',
-  // 'AL' : 'Albania',
-  // 'DZ' : 'Algeria',
-  // 'AS' : 'American Samoa',
-  // 'AD' : 'Andorra',
-  // 'AO' : 'Angola',
-  // 'AI' : 'Anguilla',
-  // 'AQ' : 'Antarctica',
-  // 'AG' : 'Antigua And Barbuda',
-  // 'AR' : 'Argentina',
-  // 'AM' : 'Armenia',
-  // 'AW' : 'Aruba',
-  // 'AU' : 'Australia',
-  // 'AT' : 'Austria',
-  // 'AZ' : 'Azerbaijan',
+  'AF' : '🇦🇫',
+  'AX' : '🇦🇽',
+  'AL' : '🇦🇱',
+  'DZ' : '🇩🇿',
+  'AS' : '🇦🇸',
+  'AD' : '🇦🇩',
+  'AO' : '🇦🇴',
+  'AI' : '🇦🇮',
+  'AQ' : '🇦🇶',
+  'AG' : '🇦🇬',
+  'AR' : '🇦🇷',
+  'AM' : '🇦🇲',
+  'AW' : '🇦🇼',
+  'AU' : '🇦🇺',
+  'AT' : '🇦🇹',
+  'AZ' : '🇦🇿',
   'BS' : '🇧🇸',
-  // 'BH' : 'Bahrain',
-  // 'BD' : 'Bangladesh',
-  // 'BB' : 'Barbados',
-  // 'BY' : 'Belarus',
-  // 'BE' : 'Belgium',
-  // 'BZ' : 'Belize',
-  // 'BJ' : 'Benin',
-  // 'BM' : 'Bermuda',
-  // 'BT' : 'Bhutan',
-  // 'BO' : 'Bolivia',
-  // 'BA' : 'Bosnia And Herzegovina',
-  // 'BW' : 'Botswana',
-  // 'BV' : 'Bouvet Island',
+  'BH' : '🇧🇭',
+  'BD' : '🇧🇩',
+  'BB' : '🇧🇧',
+  'BY' : '🇧🇾',
+  'BE' : '🇧🇪',
+  'BZ' : '🇧🇿',
+  'BJ' : '🇧🇯',
+  'BM' : '🇧🇲',
+  'BT' : '🇧🇹',
+  'BO' : '🇧🇴',
+  'BA' : '🇧🇦',
+  'BW' : '🇧🇼',
+  'BQ' : '🇧🇶',
   'BR' : '🇧🇷',
   // 'IO' : 'British Indian Ocean Territory',
   // 'BN' : 'Brunei Darussalam',
@@ -246,7 +247,7 @@ var isoCountries = {
   // 'ZW' : 'Zimbabwe',
 };
 
-function getCountryName (countryCode) {
+function getCountryFlag(countryCode) {
   var country = isoCountries[countryCode];
   if (country) {
     return country;
@@ -255,4 +256,4 @@ function getCountryName (countryCode) {
   }
 }
 
-module.exports = getCountryName;
+module.exports = getCountryFlag;
