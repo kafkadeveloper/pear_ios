@@ -43,6 +43,8 @@
 		222AC92F1C72BADE00C72B6C /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 222AC92E1C72BADE00C72B6C /* libsqlite3.tbd */; };
 		222AC9311C72BAE600C72B6C /* libstdc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 222AC9301C72BAE600C72B6C /* libstdc++.tbd */; };
 		222AD1E61C72C1DB00C72B6C /* libRNDeviceInfo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 222AD1E51C72C1B800C72B6C /* libRNDeviceInfo.a */; };
+		228757D61C94D34800E17C8D /* Key.m in Sources */ = {isa = PBXBuildFile; fileRef = 228757D51C94D34800E17C8D /* Key.m */; };
+		228757E41C94D38D00E17C8D /* MicCheck.m in Sources */ = {isa = PBXBuildFile; fileRef = 228757E31C94D38D00E17C8D /* MicCheck.m */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 /* End PBXBuildFile section */
 
@@ -215,6 +217,10 @@
 		222AC92E1C72BADE00C72B6C /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		222AC9301C72BAE600C72B6C /* libstdc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libstdc++.tbd"; path = "usr/lib/libstdc++.tbd"; sourceTree = SDKROOT; };
 		222AD1E01C72C1B800C72B6C /* RNDeviceInfo.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNDeviceInfo.xcodeproj; path = "../node_modules/react-native-device-info/RNDeviceInfo.xcodeproj"; sourceTree = "<group>"; };
+		228757D41C94D34800E17C8D /* Key.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Key.h; path = Pear/Key.h; sourceTree = "<group>"; };
+		228757D51C94D34800E17C8D /* Key.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Key.m; path = Pear/Key.m; sourceTree = "<group>"; };
+		228757E21C94D38D00E17C8D /* MicCheck.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MicCheck.h; path = Pear/MicCheck.h; sourceTree = "<group>"; };
+		228757E31C94D38D00E17C8D /* MicCheck.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MicCheck.m; path = Pear/MicCheck.m; sourceTree = "<group>"; };
 		78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTLinking.xcodeproj; path = "../node_modules/react-native/Libraries/LinkingIOS/RCTLinking.xcodeproj"; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -338,6 +344,10 @@
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
+				228757D41C94D34800E17C8D /* Key.h */,
+				228757D51C94D34800E17C8D /* Key.m */,
+				228757E21C94D38D00E17C8D /* MicCheck.h */,
+				228757E31C94D38D00E17C8D /* MicCheck.m */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				13B07FB11A68108700A75B9A /* LaunchScreen.xib */,
@@ -457,6 +467,16 @@
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				222AC9301C72BAE600C72B6C /* libstdc++.tbd */,
+				222AC92E1C72BADE00C72B6C /* libsqlite3.tbd */,
+				222AC92C1C72BAD200C72B6C /* libc.tbd */,
+				222AC92A1C72BACA00C72B6C /* VideoToolbox.framework */,
+				222AC9281C72BAC200C72B6C /* CoreVideo.framework */,
+				222AC9261C72BABD00C72B6C /* CoreAudio.framework */,
+				222AC9241C72BAB600C72B6C /* GLKit.framework */,
+				222AC9221C72BAB100C72B6C /* CoreGraphics.framework */,
+				222AC9201C72BAAB00C72B6C /* AudioToolbox.framework */,
+				222AC91E1C72BAA600C72B6C /* AVFoundation.framework */,
 				222AD1E01C72C1B800C72B6C /* RNDeviceInfo.xcodeproj */,
 				146833FF1AC3E56700842450 /* React.xcodeproj */,
 				00C302A71ABCB8CE00DB3ED1 /* RCTActionSheet.xcodeproj */,
@@ -483,16 +503,6 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				222AC9301C72BAE600C72B6C /* libstdc++.tbd */,
-				222AC92E1C72BADE00C72B6C /* libsqlite3.tbd */,
-				222AC92C1C72BAD200C72B6C /* libc.tbd */,
-				222AC92A1C72BACA00C72B6C /* VideoToolbox.framework */,
-				222AC9281C72BAC200C72B6C /* CoreVideo.framework */,
-				222AC9261C72BABD00C72B6C /* CoreAudio.framework */,
-				222AC9241C72BAB600C72B6C /* GLKit.framework */,
-				222AC9221C72BAB100C72B6C /* CoreGraphics.framework */,
-				222AC9201C72BAAB00C72B6C /* AudioToolbox.framework */,
-				222AC91E1C72BAA600C72B6C /* AVFoundation.framework */,
 				13B07FAE1A68108700A75B9A /* Pear */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* PearTests */,
@@ -770,6 +780,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				228757D61C94D34800E17C8D /* Key.m in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				222AC9101C72BA7800C72B6C /* WebRTCModule+RTCSetting.m in Sources */,
 				222AC90F1C72BA7800C72B6C /* WebRTCModule+RTCPeerConnection.m in Sources */,
@@ -779,6 +790,7 @@
 				222AC90B1C72BA7800C72B6C /* RTCVideoViewManager.m in Sources */,
 				222AC9111C72BA7800C72B6C /* WebRTCModule+RTCSignalingState.m in Sources */,
 				222AC90E1C72BA7800C72B6C /* WebRTCModule+RTCMediaStream.m in Sources */,
+				228757E41C94D38D00E17C8D /* MicCheck.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				222AC9121C72BA7800C72B6C /* WebRTCModule.m in Sources */,
 				222AC90A1C72BA7800C72B6C /* RTCPeerConnectionDelegator.m in Sources */,

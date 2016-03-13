@@ -7,6 +7,7 @@ import React, {
   Text,
   Image,
   TouchableHighlight,
+  StatusBarIOS,
 } from 'react-native';
 import Animatable from 'react-native-animatable';
 import Swiper from 'react-native-swiper';
@@ -15,24 +16,44 @@ import AboutView from './AboutView';
 const RED = '#ff6169';
 const BLUE = '#26476b';
 const GREY = '#e0e0e0';
+const RED_RGBA = 'rgba(255, 97, 105, x)';
+const BLUE_RGBA = 'rgba(38, 71, 107, x)';
 
 class MainView extends Component {
 
-  contructor(props) {
+  constructor(props) {
     super(props);
+    this.state = {
+      callButtonAble: true,
+      hangupButtonAble: false,
+
+      bgOverlayColor: RED,
+
+      callInterval: null,
+      callDeltaTime: null,
+      callDeltaTimeStr: null,
+    };
   }
 
   render() {
+    if (this.props.fresh) {
+      return this._renderWelcomeView();
+    }
+    /* Permission screen */
+    // if (this.state.micPermission !== 'YES') {  // TODO make a modal view for this and show at call
+    //   return this.renderPermissionView();
+    // }
     if (this.props.calling) {
-      return renderHangupView();
+      return this._renderHangupView();
     } else {
-      return renderCallView();
+      return this._renderCallView();
     }
   }
 
-  renderCallView() {
+  /* Render functions */
+  _renderCallView() {
     return (
-      <Swiper style={styles.wrapper}  loop={false} index={1} showsPagination={false}>
+      <Swiper style={styles.wrapper} loop={false} index={1} showsPagination={false}>
         <AboutView bg={RED}/>
         <View style={styles.container}>
           <View style={{flex: 1, flexDirection: 'column', backgroundColor: this.state.bgOverlayColor}}>
@@ -44,7 +65,7 @@ class MainView extends Component {
             <Animatable.View style={styles.bottomContainer} animation="bounceIn" ref="aniviewcall">
               <TouchableHighlight style={styles.circleButton}
                                   underlayColor={GREY}
-                                  onPress={this.state.buttonAble ? this.onCallButtonPressed.bind(this) : null}>
+                                  onPress={this.state.callButtonAble ? this.onMainViewCallButtonPressed.bind(this) : null}>
                 <Image source={require('image!call')} style={{width: 30, height: 30,}} />
               </TouchableHighlight>
             </Animatable.View>
@@ -54,7 +75,7 @@ class MainView extends Component {
     );
   }
 
-  renderHangupView() {
+  _renderHangupView() {
     return (
       <View style={styles.container}>
         <View style={{flex: 1, flexDirection: 'column', backgroundColor: this.state.bgOverlayColor}}>
@@ -63,25 +84,25 @@ class MainView extends Component {
             <View style={styles.divideContainerx2}></View>
             <View style={styles.flagTextContainer}>
               <Animatable.Text style={styles.flagText} animation="bounceIn" ref="aniviewflag">
-                {this.state.peerLoc}
+                {this.props.peerLoc}
               </Animatable.Text>
             </View>
             <View style={styles.divideContainer}></View>
             <View style={styles.deltaTextContainer}>
               <Animatable.Text style={styles.deltaText} animation="bounceInDown" ref="aniviewdelta">
-                {this.state.callDeltaTime}
+                {this.state.callDeltaTimeStr}
               </Animatable.Text>
             </View>
           </View>
           <Animatable.View style={styles.middleContainer} animation="bounceIn" ref="aniviewopt">
-            {this.renderMuteButton()}
-            {this.renderSpeakerButton()}
+            {this._renderMuteButton()}
+            {this._renderSpeakerButton()}
           </Animatable.View>
           <View style={styles.divideContainer}></View>
           <Animatable.View style={styles.bottomContainer} animation="bounceInUp" ref="aniviewhang">
             <TouchableHighlight style={styles.circleButton}
                                 underlayColor={GREY}
-                                onPress={this.state.buttonAble ? this.onHangupButtonPressed.bind(this) : null}>
+                                onPress={this.state.hangupButtonAble ? this.onMainViewHangupButtonPressed.bind(this) : null}>
               <Image source={require('image!hangup')} style={{width: 36, height: 36,}} />
             </TouchableHighlight>
           </Animatable.View>
@@ -90,12 +111,12 @@ class MainView extends Component {
     );
   } 
 
-  renderMuteButton() {
+  _renderMuteButton() {
     if (this.props.micMuted) {
       return (
         <TouchableHighlight style={styles.audioControlButtonOn}
                             underlayColor={GREY}
-                            onPress={this.onMuteButtonPressed.bind(this)}>
+                            onPress={this.props.onMuteButtonPressed}>
           <Image source={require('image!muteOn')} style={{width: 17, height: 20,}} />
         </TouchableHighlight>
       );
@@ -103,19 +124,19 @@ class MainView extends Component {
       return (
         <TouchableHighlight style={styles.audioControlButtonOff}
                             underlayColor={GREY}
-                            onPress={this.onMuteButtonPressed.bind(this)}>
+                            onPress={this.props.onMuteButtonPressed}>
           <Image source={require('image!muteOff')} style={{width: 17, height: 20,}} />
         </TouchableHighlight>
       );
     }
   }
 
-  renderSpeakerButton() {
+  _renderSpeakerButton() {
     if (this.props.speakerOn) {
       return (
         <TouchableHighlight style={styles.audioControlButtonOn}
                             underlayColor={GREY}
-                            onPress={this.onSpeakerButtonPressed.bind(this)}>
+                            onPress={this.props.onSpeakerButtonPressed}>
           <Image source={require('image!speakerOn')} style={{width: 20, height: 20,}} />
         </TouchableHighlight>
       );
@@ -123,11 +144,105 @@ class MainView extends Component {
       return (
         <TouchableHighlight style={styles.audioControlButtonOff}
                             underlayColor={GREY}
-                            onPress={this.onSpeakerButtonPressed.bind(this)}>
+                            onPress={this.props.onSpeakerButtonPressed}>
           <Image source={require('image!speakerOff')} style={{width: 20, height: 20,}} />
         </TouchableHighlight>
       );
     }
+  }
+
+  _renderWelcomeView() {
+    return (
+      <View style={styles.container}>
+        <View style={{flex: 0.5, justifyContent: 'center', alignItems:'center'}}>
+          <Text style={{alignSelf: 'center', color:'white', fontSize:30}}>Welcome screen</Text>
+        </View>
+        <View style={{flex: 0.5, justifyContent: 'center', alignItems:'center'}}>
+          <TouchableHighlight style={{width: 200, height: 40, alignItems:'center',justifyContent:'center', borderWidth:1, borderColor:'white', borderRadius:13, backgroundColor: 'transparent'}}
+                              underlayColor={GREY}
+                              onPress={this.props.onWelcomeButtonPressed}>
+            <Text style={{color: 'white', fontSize: 18}}>Let's get started 😀</Text>
+          </TouchableHighlight>
+        </View>
+      </View>
+    );
+  }
+
+  _renderPermissionView() {
+    return (
+      <View style={styles.container}>
+        <Text>Permission</Text>
+      </View>
+    );
+  }
+
+  /* Button press event handlers */
+  onMainViewCallButtonPressed() {
+    this.setState({callButtonAble: false, hangupButtonAble: true}, () => {
+      this.refs.aniviewcall.zoomOutDown(600).then( endstate => {});
+      this._linearGradualBackgroundShiftBlue(() => {
+        this.props.onCallButtonPressed();
+        StatusBarIOS.setNetworkActivityIndicatorVisible(true);
+      });
+    });
+  }
+
+  onMainViewHangupButtonPressed() {
+    this.setState({hangupButtonAble: false, callButtonAble: true, callDeltaTime: null, callDeltaTimeStr: null}, () => {
+      this.refs.aniviewflag.zoomOut(600).then( endstate => {});
+      this.refs.aniviewdelta.zoomOut(600).then( endstate => {});
+      this.refs.aniviewopt.zoomOut(600).then( endstate => {});
+      this.refs.aniviewhang.zoomOut(600).then( endstate => {});
+      this._linearGradualBackgroundShiftRed(() => {
+        clearInterval(this.state.callInterval);
+        this.props.onHangupButtonPressed();
+        StatusBarIOS.setNetworkActivityIndicatorVisible(false);
+      });
+    });
+  }
+
+  /* Animation functions */
+  _linearGradualBackgroundShiftRed(callback) {
+    let d = 0.9;
+    let gradientInterval = setInterval(() => {
+      if (d < 0) {
+        clearInterval(gradientInterval);
+        this.setState({bgOverlayColor: RED});
+        callback();
+      } else {
+        this.setState({bgOverlayColor: BLUE_RGBA.replace('x', d)});
+      }
+      d -= 0.05;
+    }, 30);
+  }
+
+  _linearGradualBackgroundShiftBlue(callback) {
+    let d = 0.1;
+    let gradientInterval = setInterval(() => {
+      if (d > 1) {
+        clearInterval(gradientInterval);
+        callback();
+      } else {
+        this.setState({bgOverlayColor: BLUE_RGBA.replace('x', d)});
+      }
+      d += 0.05;
+    }, 30);
+  }
+
+  /* Call duration functions */
+  callTimeIntervalStart() {
+    this.setState({callDeltaTime: 0, callDeltaTimeStr: '00:00'}, () => {
+      this.setState({
+        callInterval: setInterval(() => { 
+          let mss = this.state.callDeltaTime;
+          let secs = mss % 60;
+          let mins = Math.floor(mss / 60);
+          secs > 9 ? secs = secs.toString() : secs = '0' + secs.toString();
+          mins > 9 ? mins = mins.toString() : mins = '0' + mins.toString();
+          this.setState({callDeltaTime: mss + 1, callDeltaTimeStr: mins + ':' + secs});
+        }, 1000)
+      });
+    });
   }
 }
 
