@@ -24,16 +24,4 @@ RCT_EXPORT_METHOD(micCheck:(RCTResponseSenderBlock) callback) {
   }];
   callback(@[[NSNull null], val]);
 }
-
-//+ (int)micCheck {
-//  __block NSNumber *val = [NSNumber numberWithInt:-1];
-//  [[AVAudioSession sharedInstance] requestRecordPermission:^(BOOL granted) {
-//    if (granted) {
-//      val = [NSNumber numberWithInt:1];
-//    } else {
-//      val = [NSNumber numberWithInt:0];
-//    }
-//  }];
-//  return [val intValue];
-//}
 @end

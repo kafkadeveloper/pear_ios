@@ -30,8 +30,8 @@ class MainView extends Component {
       bgOverlayColor: RED,
 
       callInterval: null,
-      callDeltaTime: null,
-      callDeltaTimeStr: null,
+      callDeltaTime: 0,
+      callDeltaTimeStr: '',
     };
   }
 
@@ -188,7 +188,7 @@ class MainView extends Component {
   }
 
   onMainViewHangupButtonPressed() {
-    this.setState({hangupButtonAble: false, callButtonAble: true, callDeltaTime: null, callDeltaTimeStr: null}, () => {
+    this.setState({hangupButtonAble: false, callButtonAble: true, callDeltaTime: 0, callDeltaTimeStr: ''}, () => {
       this.refs.aniviewflag.zoomOut(600).then( endstate => {});
       this.refs.aniviewdelta.zoomOut(600).then( endstate => {});
       this.refs.aniviewopt.zoomOut(600).then( endstate => {});

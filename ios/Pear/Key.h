@@ -10,5 +10,5 @@
 #import "RCTBridgeModule.h"
 
 @interface Key : NSObject <RCTBridgeModule>
-//+(NSString *)getKey;
+
 @end

@@ -10,5 +10,4 @@
 #import "RCTBridgeModule.h"
 
 @interface MicCheck : NSObject <RCTBridgeModule>
-//+ (int)micCheck;
 @end
