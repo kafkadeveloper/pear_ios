@@ -4,7 +4,6 @@ import React, {
   AppRegistry,
   Component,
   AsyncStorage,
-  VibrationIOS,
   Alert,
   NativeModules
 } from 'react-native';
@@ -96,7 +95,6 @@ function createPC(socketId, isOffer) {
         clearInterval(component.refs.mainView.state.emojiInterval);
         component.refs.mainView.callTimeIntervalStart();
         component.setState({peerLoc: tempPeerLoc});
-        VibrationIOS.vibrate();
       }
     } else if (event.target.iceConnectionState === 'disconnected') {
       component.refs.mainView.onMainViewHangupButtonPressed();
