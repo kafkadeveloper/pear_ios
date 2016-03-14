@@ -31,7 +31,7 @@ let AppKey = NativeModules.Key;
 let MicCheck = NativeModules.MicCheck;
 
 /* Analytics */
-const TRACKING_ID = 'UA-75025059-1';
+const TRACKING_ID = 'UA-75025059-2';
 let ga = null;
 
 /* Permanent storage keys */
@@ -341,8 +341,9 @@ class Pear extends Component {
         } else {
           socket = io(URL, { query: 'secret='+key, forceNew: true });
           listen();
-          let gaEvent = new GAHits.Event('Audio', 'call', 'loc', 0);
-          ga.send(gaEvent);
+          let screenView = new GAHits.ScreenView('Pear', 'Test Screen', '0.0.1', 'com.pearvoice.app');
+          let gaEvent = new GAHits.Event('Audio', 'call');
+          ga.send(screenView);
         }
       });
     });
