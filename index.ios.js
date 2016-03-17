@@ -32,7 +32,7 @@ let MicCheck = NativeModules.MicCheck;
 
 /* Analytics */
 const TRACKING_ID = 'UA-75025059-2';
-let ga = null;
+let ga = this.ga = null;
 
 /* Permanent storage keys */
 const REV = '24'
@@ -92,6 +92,7 @@ function createPC(socketId, isOffer) {
         event.target.iceConnectionState === 'completed') {
       if (!component.state.peerLoc) {   /* Prevent hitting both 'connected' and 'completed' */
         socket.disconnect();
+        component.refs.mainView.callAudioIntervalEnd();
         clearInterval(component.refs.mainView.state.emojiInterval);
         component.refs.mainView.callTimeIntervalStart();
         component.setState({peerLoc: tempPeerLoc});
@@ -341,9 +342,9 @@ class Pear extends Component {
         } else {
           socket = io(URL, { query: 'secret='+key, forceNew: true });
           listen();
-          let screenView = new GAHits.ScreenView('Pear', 'Test Screen', '0.0.1', 'com.pearvoice.app');
-          let gaEvent = new GAHits.Event('Audio', 'call');
-          ga.send(screenView);
+          let gaEvent = new GAHits.Event('Audio', 'call', 'Duration', 0);
+          ga.send(gaEvent);
+          // https://ssl.google-analytics.com/collect?v=0.0.1&tid=UA-75025059-2&cid=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX&ec=Audio&ea=call&el=Duration&t=event&z=52282812
         }
       });
     });

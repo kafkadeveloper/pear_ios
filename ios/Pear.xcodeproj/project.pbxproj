@@ -45,6 +45,8 @@
 		222AD1E61C72C1DB00C72B6C /* libRNDeviceInfo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 222AD1E51C72C1B800C72B6C /* libRNDeviceInfo.a */; };
 		228757D61C94D34800E17C8D /* Key.m in Sources */ = {isa = PBXBuildFile; fileRef = 228757D51C94D34800E17C8D /* Key.m */; };
 		228757E41C94D38D00E17C8D /* MicCheck.m in Sources */ = {isa = PBXBuildFile; fileRef = 228757E31C94D38D00E17C8D /* MicCheck.m */; };
+		22EBD4871C993D8E00AFEBC8 /* AudioPlayerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 22EBD4841C993D8E00AFEBC8 /* AudioPlayerManager.m */; };
+		22EBD4881C993D8E00AFEBC8 /* AudioRecorderManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 22EBD4861C993D8E00AFEBC8 /* AudioRecorderManager.m */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 /* End PBXBuildFile section */
 
@@ -221,6 +223,10 @@
 		228757D51C94D34800E17C8D /* Key.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Key.m; path = Pear/Key.m; sourceTree = "<group>"; };
 		228757E21C94D38D00E17C8D /* MicCheck.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MicCheck.h; path = Pear/MicCheck.h; sourceTree = "<group>"; };
 		228757E31C94D38D00E17C8D /* MicCheck.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MicCheck.m; path = Pear/MicCheck.m; sourceTree = "<group>"; };
+		22EBD4831C993D8E00AFEBC8 /* AudioPlayerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AudioPlayerManager.h; path = "../node_modules/react-native-audio/ios/AudioPlayerManager.h"; sourceTree = "<group>"; };
+		22EBD4841C993D8E00AFEBC8 /* AudioPlayerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AudioPlayerManager.m; path = "../node_modules/react-native-audio/ios/AudioPlayerManager.m"; sourceTree = "<group>"; };
+		22EBD4851C993D8E00AFEBC8 /* AudioRecorderManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AudioRecorderManager.h; path = "../node_modules/react-native-audio/ios/AudioRecorderManager.h"; sourceTree = "<group>"; };
+		22EBD4861C993D8E00AFEBC8 /* AudioRecorderManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AudioRecorderManager.m; path = "../node_modules/react-native-audio/ios/AudioRecorderManager.m"; sourceTree = "<group>"; };
 		78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTLinking.xcodeproj; path = "../node_modules/react-native/Libraries/LinkingIOS/RCTLinking.xcodeproj"; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -348,6 +354,10 @@
 				228757D51C94D34800E17C8D /* Key.m */,
 				228757E21C94D38D00E17C8D /* MicCheck.h */,
 				228757E31C94D38D00E17C8D /* MicCheck.m */,
+				22EBD4831C993D8E00AFEBC8 /* AudioPlayerManager.h */,
+				22EBD4841C993D8E00AFEBC8 /* AudioPlayerManager.m */,
+				22EBD4851C993D8E00AFEBC8 /* AudioRecorderManager.h */,
+				22EBD4861C993D8E00AFEBC8 /* AudioRecorderManager.m */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				13B07FB11A68108700A75B9A /* LaunchScreen.xib */,
@@ -784,7 +794,9 @@
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				222AC9101C72BA7800C72B6C /* WebRTCModule+RTCSetting.m in Sources */,
 				222AC90F1C72BA7800C72B6C /* WebRTCModule+RTCPeerConnection.m in Sources */,
+				22EBD4881C993D8E00AFEBC8 /* AudioRecorderManager.m in Sources */,
 				222AC90D1C72BA7800C72B6C /* WebRTCModule+RTCICEGatheringState.m in Sources */,
+				22EBD4871C993D8E00AFEBC8 /* AudioPlayerManager.m in Sources */,
 				222AC9091C72BA7800C72B6C /* RTCPeerConnection+Block.m in Sources */,
 				222AC90C1C72BA7800C72B6C /* WebRTCModule+RTCICEConnectionState.m in Sources */,
 				222AC90B1C72BA7800C72B6C /* RTCVideoViewManager.m in Sources */,

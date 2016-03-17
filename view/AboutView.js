@@ -4,7 +4,6 @@ import React, {
   Component,
   StyleSheet,
   View,
-  ScrollView,
   Text,
   Image,
 } from 'react-native';
@@ -12,20 +11,39 @@ import React, {
 class AboutView extends Component {
   render() {
     return (
-      <ScrollView style={{flex: 1, backgroundColor: this.props.bg}}
-                  contentContainerStyle={{flex:1}}>
-        <View style={{flex: 0.5, justifyContent: 'center', alignItems:'center'}}>
-          <Text style={{color:'white', fontSize: 24}}>About Pear</Text>  
+      <View style={{flex: 1, flexDirection: 'column', backgroundColor: this.props.bg}}>
+        <View style={styles.topContainer}> 
         </View>
-        <View style={{flex: 0.5, justifyContent: 'center', alignItems:'center'}}>
+        <View style={styles.bottomContainer}>
+          <Image source={require('image!logo')} style={{width: 60, height: 60,}} />
+          <Text style={styles.versionText}>v0.0.1</Text> 
+          <Text style={styles.websiteText}>pearvoice.com</Text> 
         </View>
-      </ScrollView>
+      </View>
     );
   }
 }
 
-const styles = StyleSheet.create({
-
+const styles = StyleSheet.create({ 
+  topContainer: {
+    flex: 0.80,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bottomContainer: {
+    flex: 0.20,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+  },
+  versionText: {
+    color: 'white',
+    fontSize: 12,
+  },
+  websiteText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: 'bold',
+  }
 });
 
 export default AboutView;

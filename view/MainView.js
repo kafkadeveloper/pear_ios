@@ -12,9 +12,10 @@ import Animatable from 'react-native-animatable';
 import Swiper from 'react-native-swiper';
 import AboutView from './AboutView';
 
+let {AudioPlayer} = require('react-native-audio');
 let emojiloading = require('../js/emojiloading');
-const TIME_INITIAL = '00:00';
 
+const TIME_INITIAL = '00:00';
 const RED = '#ff6169';
 const BLUE = '#26476b';
 const GREY = '#e0e0e0';
@@ -31,6 +32,7 @@ class MainView extends Component {
 
       bgOverlayColor: RED,
 
+      audioInterval: null,
       emojiInterval: null,
       callInterval: null,
       callDeltaTime: 0,
@@ -186,6 +188,7 @@ class MainView extends Component {
       this.refs.aniviewcall.zoomOutDown(600).then( endstate => {});
       this._linearGradualBackgroundShiftBlue(() => {
         this.emojiIntervalStart();
+        this.callAudioIntervalStart();
         this.props.onCallButtonPressed();
       });
     });
@@ -198,8 +201,9 @@ class MainView extends Component {
       this.refs.aniviewopt.zoomOut(600).then( endstate => {});
       this.refs.aniviewhang.zoomOut(600).then( endstate => {});
       this._linearGradualBackgroundShiftRed(() => {
-        clearInterval(this.state.emojiInterval);
         clearInterval(this.state.callInterval);
+        clearInterval(this.state.emojiInterval);
+        this.callAudioIntervalEnd();
         this.props.onHangupButtonPressed();
       });
     });
@@ -259,6 +263,20 @@ class MainView extends Component {
         }, 450)
       });
     });
+  }
+
+  callAudioIntervalStart() {
+    this.setState({
+      audioInterval: setInterval(() => {
+        AudioPlayer.playWithUrl('/Users/justinko/Desktop/call.mp3');
+        // AudioPlayer.playWithUrl('../resources/call.mp3');
+      }, 4000)
+    });
+  }
+
+  callAudioIntervalEnd() {
+    AudioPlayer.stop();
+    clearInterval(this.state.audioInterval);
   }
 }
 
