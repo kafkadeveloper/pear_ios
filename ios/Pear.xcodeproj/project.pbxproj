@@ -45,6 +45,7 @@
 		222AD1E61C72C1DB00C72B6C /* libRNDeviceInfo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 222AD1E51C72C1B800C72B6C /* libRNDeviceInfo.a */; };
 		228757D61C94D34800E17C8D /* Key.m in Sources */ = {isa = PBXBuildFile; fileRef = 228757D51C94D34800E17C8D /* Key.m */; };
 		228757E41C94D38D00E17C8D /* MicCheck.m in Sources */ = {isa = PBXBuildFile; fileRef = 228757E31C94D38D00E17C8D /* MicCheck.m */; };
+		22A2EC851C9C7FD300A8C0C1 /* call-tone in Resources */ = {isa = PBXBuildFile; fileRef = 22A2EC841C9C7FD300A8C0C1 /* call-tone */; };
 		22EBD4871C993D8E00AFEBC8 /* AudioPlayerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 22EBD4841C993D8E00AFEBC8 /* AudioPlayerManager.m */; };
 		22EBD4881C993D8E00AFEBC8 /* AudioRecorderManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 22EBD4861C993D8E00AFEBC8 /* AudioRecorderManager.m */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
@@ -223,6 +224,7 @@
 		228757D51C94D34800E17C8D /* Key.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Key.m; path = Pear/Key.m; sourceTree = "<group>"; };
 		228757E21C94D38D00E17C8D /* MicCheck.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MicCheck.h; path = Pear/MicCheck.h; sourceTree = "<group>"; };
 		228757E31C94D38D00E17C8D /* MicCheck.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MicCheck.m; path = Pear/MicCheck.m; sourceTree = "<group>"; };
+		22A2EC841C9C7FD300A8C0C1 /* call-tone */ = {isa = PBXFileReference; lastKnownFileType = file; path = "call-tone"; sourceTree = "<group>"; };
 		22EBD4831C993D8E00AFEBC8 /* AudioPlayerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AudioPlayerManager.h; path = "../node_modules/react-native-audio/ios/AudioPlayerManager.h"; sourceTree = "<group>"; };
 		22EBD4841C993D8E00AFEBC8 /* AudioPlayerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AudioPlayerManager.m; path = "../node_modules/react-native-audio/ios/AudioPlayerManager.m"; sourceTree = "<group>"; };
 		22EBD4851C993D8E00AFEBC8 /* AudioRecorderManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AudioRecorderManager.h; path = "../node_modules/react-native-audio/ios/AudioRecorderManager.h"; sourceTree = "<group>"; };
@@ -347,6 +349,7 @@
 		13B07FAE1A68108700A75B9A /* Pear */ = {
 			isa = PBXGroup;
 			children = (
+				22A2EC841C9C7FD300A8C0C1 /* call-tone */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
@@ -754,6 +757,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				22A2EC851C9C7FD300A8C0C1 /* call-tone in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

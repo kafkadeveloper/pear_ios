@@ -92,7 +92,7 @@ function createPC(socketId, isOffer) {
         event.target.iceConnectionState === 'completed') {
       if (!component.state.peerLoc) {   /* Prevent hitting both 'connected' and 'completed' */
         socket.disconnect();
-        component.refs.mainView.callAudioIntervalEnd();
+        component.refs.mainView.callAudioStop();
         clearInterval(component.refs.mainView.state.emojiInterval);
         component.refs.mainView.callTimeIntervalStart();
         component.setState({peerLoc: tempPeerLoc});

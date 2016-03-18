@@ -32,11 +32,11 @@ class MainView extends Component {
 
       bgOverlayColor: RED,
 
-      audioInterval: null,
       emojiInterval: null,
+      emojiCounter: 0,
+      callStartTime: null,
       callInterval: null,
-      callDeltaTime: 0,
-      callDeltaTimeStr: '',
+      deltaStr: '',
     };
   }
 
@@ -96,7 +96,7 @@ class MainView extends Component {
             <View style={styles.divideContainer}></View>
             <View style={styles.deltaTextContainer}>
               <Animatable.Text style={styles.deltaText} animation="bounceIn" ref="aniviewdelta">
-                {this.state.callDeltaTimeStr}
+                {this.state.deltaStr}
               </Animatable.Text>
             </View>
           </View>
@@ -188,22 +188,22 @@ class MainView extends Component {
       this.refs.aniviewcall.zoomOutDown(600).then( endstate => {});
       this._linearGradualBackgroundShiftBlue(() => {
         this.emojiIntervalStart();
-        this.callAudioIntervalStart();
         this.props.onCallButtonPressed();
+        AudioPlayer.play('call-tone');
       });
     });
   }
 
   onMainViewHangupButtonPressed() {
-    this.setState({hangupButtonAble: false, callButtonAble: true, callDeltaTimeStr: ''}, () => {
+    this.setState({hangupButtonAble: false, callButtonAble: true, deltaStr: ''}, () => {
       this.refs.aniviewflag.zoomOut(600).then( endstate => {});
       this.refs.aniviewdelta.zoomOut(600).then( endstate => {});
       this.refs.aniviewopt.zoomOut(600).then( endstate => {});
       this.refs.aniviewhang.zoomOut(600).then( endstate => {});
       this._linearGradualBackgroundShiftRed(() => {
+        this.callAudioStop();
         clearInterval(this.state.callInterval);
         clearInterval(this.state.emojiInterval);
-        this.callAudioIntervalEnd();
         this.props.onHangupButtonPressed();
       });
     });
@@ -239,44 +239,34 @@ class MainView extends Component {
 
   /* Interval functions */
   callTimeIntervalStart() {
-    this.setState({callDeltaTime: 0, callDeltaTimeStr: TIME_INITIAL}, () => {
+    this.setState({callStartTime: new Date(), deltaStr: TIME_INITIAL}, () => {
       this.setState({
         callInterval: setInterval(() => { 
-          let mss = this.state.callDeltaTime;
+          let mss = Math.floor((new Date() - this.state.callStartTime) / 1000);
           let secs = mss % 60;
           let mins = Math.floor(mss / 60);
           secs > 9 ? secs = secs.toString() : secs = '0' + secs.toString();
           mins > 9 ? mins = mins.toString() : mins = '0' + mins.toString();
-          this.setState({callDeltaTime: mss + 1, callDeltaTimeStr: mins + ':' + secs});
+          this.setState({deltaStr: mins + ':' + secs});
         }, 1000)
       });
     });
   }
 
   emojiIntervalStart() {
-    this.setState({callDeltaTime: 0, callDeltaTimeStr: ''}, () => {
+    this.setState({emojiCounter: 0, deltaStr: ''}, () => {
       this.setState({
         emojiInterval: setInterval(() => {
-          let counter = this.state.callDeltaTime;
-          let current = this.state.callDeltaTimeStr;
-          this.setState({callDeltaTime: counter + 1, callDeltaTimeStr: emojiloading(current, counter)});
+          let counter = this.state.emojiCounter;
+          let current = this.state.deltaStr;
+          this.setState({emojiCounter: counter + 1, deltaStr: emojiloading(current, counter)});
         }, 450)
       });
     });
   }
 
-  callAudioIntervalStart() {
-    this.setState({
-      audioInterval: setInterval(() => {
-        AudioPlayer.playWithUrl('/Users/justinko/Desktop/call.mp3');
-        // AudioPlayer.playWithUrl('../resources/call.mp3');
-      }, 4000)
-    });
-  }
-
-  callAudioIntervalEnd() {
+  callAudioStop() {
     AudioPlayer.stop();
-    clearInterval(this.state.audioInterval);
   }
 }
 
