@@ -15,11 +15,6 @@ import WebRTC, {
   RTCView,
   RTCSetting,
 } from 'react-native-webrtc';
-import {
-  Analytics,
-  Hits as GAHits,
-} from 'react-native-google-analytics';
-import DeviceInfo from 'react-native-device-info';
 import MainView from './view/MainView';
 
 window.navigator.userAgent = 'react-native';
@@ -29,10 +24,6 @@ let isocountry = require('./js/isocountry');
 /* Native modules */
 let AppKey = NativeModules.Key;
 let MicCheck = NativeModules.MicCheck;
-
-/* Analytics */
-const TRACKING_ID = 'UA-75025059-2';
-let ga = this.ga = null;
 
 /* Permanent storage keys */
 const REV = '24'
@@ -235,10 +226,6 @@ class Pear extends Component {
     component = this;
     this._checkFreshAndMicState().done;
     this._checkAndUpdateUptAndLocState().done;
-    ga = new Analytics(TRACKING_ID, 
-                       DeviceInfo.getUniqueID(), 
-                       DeviceInfo.getReadableVersion(), 
-                       DeviceInfo.getUserAgent());
   }
 
   /* Helper functions */
@@ -342,9 +329,6 @@ class Pear extends Component {
         } else {
           socket = io(URL, { query: 'secret='+key, forceNew: true });
           listen();
-          let gaEvent = new GAHits.Event('Audio', 'call', 'Duration', 0);
-          ga.send(gaEvent);
-          // https://ssl.google-analytics.com/collect?v=0.0.1&tid=UA-75025059-2&cid=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX&ec=Audio&ea=call&el=Duration&t=event&z=52282812
         }
       });
     });

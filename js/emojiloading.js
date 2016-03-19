@@ -62,3 +62,4 @@ function getEmojiLoading(current, counter) {
 }
 
 module.exports = getEmojiLoading;
+

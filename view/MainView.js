@@ -8,13 +8,16 @@ import React, {
   Image,
   TouchableHighlight,
 } from 'react-native';
+import DeviceInfo from 'react-native-device-info';
 import Animatable from 'react-native-animatable';
 import Swiper from 'react-native-swiper';
 import AboutView from './AboutView';
 
 let {AudioPlayer} = require('react-native-audio');
+let analytics = require('../js/analytics');
 let emojiloading = require('../js/emojiloading');
 
+const TRACKING_ID = 'UA-75025059-2';
 const TIME_INITIAL = '00:00';
 const RED = '#ff6169';
 const BLUE = '#26476b';
@@ -34,9 +37,11 @@ class MainView extends Component {
 
       emojiInterval: null,
       emojiCounter: 0,
-      callStartTime: null,
+
       callInterval: null,
+      callStartTime: null,
       deltaStr: '',
+      deltaInt: 0,
     };
   }
 
@@ -205,6 +210,12 @@ class MainView extends Component {
         clearInterval(this.state.callInterval);
         clearInterval(this.state.emojiInterval);
         this.props.onHangupButtonPressed();
+        if (this.state.deltaInt !== 0) {
+          analytics(TRACKING_ID, 
+                    DeviceInfo.getUniqueID(),
+                    DeviceInfo.getReadableVersion(),
+                    this.state.deltaInt);
+        }
       });
     });
   }
@@ -239,7 +250,7 @@ class MainView extends Component {
 
   /* Interval functions */
   callTimeIntervalStart() {
-    this.setState({callStartTime: new Date(), deltaStr: TIME_INITIAL}, () => {
+    this.setState({callStartTime: new Date(), deltaStr: TIME_INITIAL, deltaInt: 0}, () => {
       this.setState({
         callInterval: setInterval(() => { 
           let mss = Math.floor((new Date() - this.state.callStartTime) / 1000);
@@ -247,7 +258,7 @@ class MainView extends Component {
           let mins = Math.floor(mss / 60);
           secs > 9 ? secs = secs.toString() : secs = '0' + secs.toString();
           mins > 9 ? mins = mins.toString() : mins = '0' + mins.toString();
-          this.setState({deltaStr: mins + ':' + secs});
+          this.setState({deltaStr: mins + ':' + secs, deltaInt: mss});
         }, 1000)
       });
     });
@@ -265,6 +276,7 @@ class MainView extends Component {
     });
   }
 
+  /* Helper functions */
   callAudioStop() {
     AudioPlayer.stop();
   }
