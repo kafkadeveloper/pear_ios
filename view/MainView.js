@@ -213,6 +213,7 @@ class MainView extends Component {
         if (this.state.deltaInt !== 0) {
           analytics(TRACKING_ID, 
                     DeviceInfo.getUniqueID(),
+                    DeviceInfo.getDeviceLocale(),
                     DeviceInfo.getReadableVersion(),
                     this.state.deltaInt);
         }
