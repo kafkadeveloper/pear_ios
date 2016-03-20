@@ -194,7 +194,7 @@ class MainView extends Component {
       this._linearGradualBackgroundShiftBlue(() => {
         this.emojiIntervalStart();
         this.props.onCallButtonPressed();
-        AudioPlayer.play('call-tone');
+        AudioPlayer.play('call-tone.mp3');
       });
     });
   }

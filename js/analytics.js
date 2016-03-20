@@ -1,4 +1,4 @@
-function send(tid, uuid, language app_version, duration) {
+function send(tid, uuid, language, app_version, duration) {
   fetch('https://ssl.google-analytics.com/collect?' + 'v=1&tid=' + tid 
                                                     + '&ds=app&cid=' + uuid
                                                     + '&ul=' + language
