@@ -18,6 +18,7 @@ let analytics = require('../js/analytics');
 let emojiloading = require('../js/emojiloading');
 
 const TRACKING_ID = 'UA-75025059-2';
+const CALLTONE = 'call-tone.mp3';
 const TIME_INITIAL = '00:00';
 const RED = '#ff6169';
 const BLUE = '#26476b';
@@ -30,6 +31,7 @@ class MainView extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      calling: false,
       callButtonAble: true,
       hangupButtonAble: false,
 
@@ -46,18 +48,18 @@ class MainView extends Component {
   }
 
   render() {
-    if (this.props.fresh) {
+    if (this.props.fresh)
       return this._renderWelcomeView();
-    }
+
     /* Permission screen */
     // if (this.state.micPermission !== 'YES') {  // TODO make a modal view for this and show at call
     //   return this.renderPermissionView();
     // }
-    if (this.props.calling) {
+
+    if (this.state.calling)
       return this._renderHangupView();
-    } else {
+    else
       return this._renderCallView();
-    }
   }
 
   /* Render functions */
@@ -75,7 +77,7 @@ class MainView extends Component {
             <Animatable.View style={styles.bottomContainer} animation="bounceIn" ref="aniviewcall">
               <TouchableHighlight style={styles.circleButton}
                                   underlayColor={GREY}
-                                  onPress={this.state.callButtonAble ? this.onMainViewCallButtonPressed.bind(this) : null}>
+                                  onPress={this.state.callButtonAble ? this._onMainViewCallButtonPressed.bind(this) : null}>
                 <Image source={require('image!call')} style={{width: 30, height: 30,}} />
               </TouchableHighlight>
             </Animatable.View>
@@ -123,43 +125,29 @@ class MainView extends Component {
   } 
 
   _renderMuteButton() {
-    if (this.props.micMuted) {
-      return (
-        <TouchableHighlight style={styles.audioControlButtonOn}
-                            underlayColor={GREY}
-                            onPress={this.props.onMuteButtonPressed}>
-          <Image source={require('image!muteOn')} style={{width: 17, height: 20,}} />
-        </TouchableHighlight>
-      );
-    } else {
-      return (
-        <TouchableHighlight style={styles.audioControlButtonOff}
-                            underlayColor={GREY}
-                            onPress={this.props.onMuteButtonPressed}>
-          <Image source={require('image!muteOff')} style={{width: 17, height: 20,}} />
-        </TouchableHighlight>
-      );
-    }
+    let buttonStyle = this.props.micMuted ? styles.audioControlButtonOn : styles.audioControlButtonOff;
+    let buttonImage = this.props.micMuted ? require('image!muteOn') : require('image!muteOff');
+
+    return (
+      <TouchableHighlight style={buttonStyle}
+                          underlayColor={GREY}
+                          onPress={this.props.onMuteButtonPressed}>
+        <Image source={buttonImage} style={{width: 17, height: 20,}} />
+      </TouchableHighlight>
+    );
   }
 
   _renderSpeakerButton() {
-    if (this.props.speakerOn) {
-      return (
-        <TouchableHighlight style={styles.audioControlButtonOn}
-                            underlayColor={GREY}
-                            onPress={this.props.onSpeakerButtonPressed}>
-          <Image source={require('image!speakerOn')} style={{width: 20, height: 20,}} />
-        </TouchableHighlight>
-      );
-    } else {
-      return (
-        <TouchableHighlight style={styles.audioControlButtonOff}
-                            underlayColor={GREY}
-                            onPress={this.props.onSpeakerButtonPressed}>
-          <Image source={require('image!speakerOff')} style={{width: 20, height: 20,}} />
-        </TouchableHighlight>
-      );
-    }
+    let buttonStyle = this.props.speakerOn ? styles.audioControlButtonOn : styles.audioControlButtonOff;
+    let buttonImage = this.props.speakerOn ? require('image!speakerOn') : require('image!speakerOff');
+ 
+    return (
+      <TouchableHighlight style={buttonStyle}
+                          underlayColor={GREY}
+                          onPress={this.props.onSpeakerButtonPressed}>
+        <Image source={buttonImage} style={{width: 20, height: 20,}} />
+      </TouchableHighlight>
+    );
   }
 
   _renderWelcomeView() {
@@ -188,13 +176,16 @@ class MainView extends Component {
   }
 
   /* Button press event handlers */
-  onMainViewCallButtonPressed() {
+  _onMainViewCallButtonPressed() {
     this.setState({callButtonAble: false, hangupButtonAble: true}, () => {
       this.refs.aniviewcall.zoomOutDown(600).then( endstate => {});
       this._linearGradualBackgroundShiftBlue(() => {
-        this.emojiIntervalStart();
-        this.props.onCallButtonPressed();
-        AudioPlayer.play('call-tone.mp3');
+        /* Bring in Hangup elements after animations */
+        this.setState({calling: true}, () => {
+          this._emojiIntervalStart();
+          this._callAudioStart();
+          this.props.onCallButtonPressed();
+        });
       });
     });
   }
@@ -207,16 +198,17 @@ class MainView extends Component {
       this.refs.aniviewhang.zoomOut(600).then( endstate => {});
       this._linearGradualBackgroundShiftRed(() => {
         this.callAudioStop();
+        /* Bring in Call elements after animations */
+        this.setState({calling: false}, () => {
+          this.props.onHangupButtonPressed();
+        });
         clearInterval(this.state.callInterval);
         clearInterval(this.state.emojiInterval);
-        this.props.onHangupButtonPressed();
-        if (this.state.deltaInt !== 0) {
-          analytics(TRACKING_ID, 
-                    DeviceInfo.getUniqueID(),
-                    DeviceInfo.getDeviceLocale(),
-                    DeviceInfo.getReadableVersion(),
-                    this.state.deltaInt);
-        }
+        analytics(TRACKING_ID, 
+                  DeviceInfo.getUniqueID(),
+                  DeviceInfo.getDeviceLocale(),
+                  DeviceInfo.getReadableVersion(),
+                  this.state.deltaInt);
       });
     });
   }
@@ -265,19 +257,24 @@ class MainView extends Component {
     });
   }
 
-  emojiIntervalStart() {
-    this.setState({emojiCounter: 0, deltaStr: ''}, () => {
+  _emojiIntervalStart() {
+    this.setState({callStartTime: new Date(), deltaInt: 0, emojiCounter: 0, deltaStr: ''}, () => {
       this.setState({
         emojiInterval: setInterval(() => {
+          let mss = Math.floor((new Date() - this.state.callStartTime) / 1000);
           let counter = this.state.emojiCounter;
           let current = this.state.deltaStr;
-          this.setState({emojiCounter: counter + 1, deltaStr: emojiloading(current, counter)});
+          this.setState({emojiCounter: counter + 1, deltaStr: emojiloading(current, counter), deltaInt: -1 * mss});
         }, 450)
       });
     });
   }
 
-  /* Helper functions */
+  /* Audio functions */
+  _callAudioStart() {
+    AudioPlayer.play(CALLTONE);
+  }
+
   callAudioStop() {
     AudioPlayer.stop();
   }

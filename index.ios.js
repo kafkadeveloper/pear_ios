@@ -68,14 +68,12 @@ function createPC(socketId, isOffer) {
   }
 
   pc.onicecandidate = event => {
-    if (event.candidate) {
+    if (event.candidate)
       socket.emit('exchange', {'to': socketId, 'candidate': event.candidate});
-    }
   };
   pc.onnegotiationneeded = () => {
-    if (isOffer) {
+    if (isOffer)
       createOffer();
-    }
   };
   pc.oniceconnectionstatechange = event => {
     console.log('oniceconnectionstatechange', event.target.iceConnectionState);
@@ -92,12 +90,6 @@ function createPC(socketId, isOffer) {
       component.refs.mainView.onMainViewHangupButtonPressed();
     }
   };
-  pc.onsignalingstatechange = event => {
-    // console.log('onsignalingstatechange', event.target.signalingState);
-  };
-  pc.onaddstream = event => {
-    // component.setState({remoteSrc: event.stream.toURL()});
-  };
 
   pc.addStream(localStream);
   return pc;
@@ -105,11 +97,10 @@ function createPC(socketId, isOffer) {
 
 function exchange(data) {
   let fromId = data.from;
-  if (fromId in pcPeers) {
+  if (fromId in pcPeers)
     myPC = pcPeers[fromId];
-  } else {
+  else
     myPC = createPC(fromId, false);
-  }
 
   if (data.sdp) {
     myPC.setRemoteDescription(new RTCSessionDescription(data.sdp), () => {
@@ -128,9 +119,8 @@ function exchange(data) {
 
 function join(roomId) {
   socket.emit('join', roomId, socketIds => {
-    for (let i in socketIds) {
+    for (let i in socketIds)
       createPC(socketIds[i], true);
-    }
   });
 }
 
@@ -143,27 +133,30 @@ function getLocalStream(callback) {
 
 function hangup() {
   /* Disconnect from server */
-  socket.disconnect();
+  if (socket)
+    socket.disconnect();
 
   /* Close peer connection and delete them */
   for (let socketId in pcPeers) {
     pcPeers[socketId].close();
     delete pcPeers[socketId];
   }
-  myPC = null;
+  myPC = null;  // TODO
 
-  /* Hangup setting */
+  /* Hanging up settings */
+  RTCSetting.setAudioOutput('handset');
   RTCSetting.setProximityScreenOff(false);
   RTCSetting.setKeepScreenOn(false);
 }
 
 function call() {
+  /* Get user stream and join a room */
   getLocalStream(stream => {
     localStream = stream;
     join({room: makeRoomId()});
   });
 
-  /* Set call settings */
+  /* Calling settings */
   RTCSetting.setAudioOutput('handset');
   RTCSetting.setProximityScreenOff(true);
   RTCSetting.setKeepScreenOn(true);
@@ -186,18 +179,16 @@ function listen() {
 
   socket.on('lochange', data=> {
     tempPeerLoc = isocountry(data.loc);
-    if (data.offer) {
+    if (data.offer)
       socket.emit('lochange', {'to': data.from, 'loc': component.state.loc, 'offer': false});
-    }
   });
 }
 
 function makeRoomId() {
   let text = "";
   let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 10; i++)
     text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
   return text;
 }
 
@@ -209,8 +200,6 @@ class Pear extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      calling: false,
-
       fresh: false,
       micPermission: 'YES',
       loc: '',
@@ -234,11 +223,10 @@ class Pear extends Component {
     fetch(url).then(res => {
       return res.text();
     }).then(body => {
-      if (body.trim().length != 2) {
+      if (body.trim().length != 2)
         callback();
-      } else {
+      else
         callback(body.trim());
-      }
     });
   }
 
@@ -255,9 +243,8 @@ class Pear extends Component {
         await AsyncStorage.setItem(STORAGE_MIC, 'NO');
       } else {
         /* Subsequent loading */
-        if (this.state.micPermission !== micValue) {
+        if (this.state.micPermission !== micValue)
           this.setState({micPermission: micValue});
-        }
       }
     } catch (error) {
       console.log(error);
@@ -275,9 +262,8 @@ class Pear extends Component {
             let currTime = new Date().toString();
             AsyncStorage.setItem(STORAGE_LOC, currLoc);
             AsyncStorage.setItem(STORAGE_UPT, currTime);
-            if (this.state.loc !== currLoc) {
+            if (this.state.loc !== currLoc)
               this.setState({loc: currLoc});
-            }
           }
         });
       } else {
@@ -303,8 +289,7 @@ class Pear extends Component {
   }
 
   render() {
-    return (<MainView calling={this.state.calling} 
-                      peerLoc={this.state.peerLoc}
+    return (<MainView peerLoc={this.state.peerLoc}
                       fresh={this.state.fresh}
                       micMuted={this.state.micMuted}
                       speakerOn={this.state.speakerOn}
@@ -322,10 +307,10 @@ class Pear extends Component {
   }
 
   onCallButtonPressed() {
-    this.setState({calling: true, micMuted: false, speakerOn: false, peerLoc: ''}, () => {
+    this.setState({micMuted: false, speakerOn: false, peerLoc: ''}, () => {
       AppKey.getKey((error, key) => {
         if (error) {
-          Alert.alert('Error 😵', 'Something went horribly wrong. Please let us know at contact@pearvoice.com');
+          Alert.alert('Error 😵', 'Something went horribly wrong.');
         } else {
           socket = io(URL, { query: 'secret='+key, forceNew: true });
           listen();
@@ -335,34 +320,28 @@ class Pear extends Component {
   }
 
   onHangupButtonPressed() {
-    this.setState({calling: false}, () => {
-      hangup();
-    });
+    hangup();
   } 
 
-  onMuteButtonPressed() {
+  onMuteButtonPressed() {  // TODO
     if (myPC) {
       if (this.state.micMuted) {
-        this.setState({micMuted: false}, () => {
-          myPC.addStream(localStream);
-        });
+        this.setState({micMuted: false});
+        myPC.addStream(localStream);
       } else {
-        this.setState({micMuted: true}, () => {
-          myPC.removeStream(localStream);
-        });
+        this.setState({micMuted: true});
+        myPC.removeStream(localStream);
       }
     }
   }
 
   onSpeakerButtonPressed() {
     if (this.state.speakerOn) {
-      this.setState({speakerOn: false}, () => {
-        RTCSetting.setAudioOutput('handset');
-      });
+      this.setState({speakerOn: false});
+      RTCSetting.setAudioOutput('handset');
     } else {
-      this.setState({speakerOn: true}, () => {
-        RTCSetting.setAudioOutput('speaker');
-      });
+      this.setState({speakerOn: true});
+      RTCSetting.setAudioOutput('speaker');
     }
   }
 }
