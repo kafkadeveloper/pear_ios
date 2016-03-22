@@ -19,18 +19,18 @@
 - Apple developer account $100/year
 
 #### Ideas
-Voice communication service that lets you talk to people around the world.
-Talk to people around the world.
-Building a community around the app about discourse, connection
-Secure, transparent, open.
-Push notification of top trends
-Trending hashtags
-Friend list
-Dashboard
-Donation
-Location
-Hashtag
-Number of people online
+- Voice communication service that lets you talk to people around the world.
+- Talk to people around the world.
+- Building a community around the app about discourse, connection
+- Secure, transparent, open.
+- Push notification of top trends
+- Trending hashtags
+- Friend list (but can you call them? or just see their online indicator)
+- Dashboard
+- Donation
+- Location
+- Hashtag
+- Number of people online
 
 #### Warnings and errors
 - WARNING: no real random source present!
