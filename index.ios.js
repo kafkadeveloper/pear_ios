@@ -166,7 +166,7 @@ function listen() {
   socket.on('connect_error', data => {
     console.log('connect error', data);
     component.refs.mainView.onMainViewHangupButtonPressed();
-    Alert.alert('Error 😓', 'Please try again.');
+    Alert.alert('Error 😵', 'Please try again.');
   });
 
   socket.on('connect', data => {
@@ -307,19 +307,14 @@ class Pear extends Component {
   }
 
   onCallButtonPressed() {
-    this.setState({micMuted: false, speakerOn: false, peerLoc: ''}, () => {
-      AppKey.getKey((error, key) => {
-        if (error) {
-          Alert.alert('Error 😵', 'Something went horribly wrong.');
-        } else {
-          socket = io(URL, { query: 'secret='+key, forceNew: true });
-          listen();
-        }
-      });
+    AppKey.getKey((error, key) => {
+      socket = io(URL, { query: 'secret='+key, forceNew: true });
+      listen();
     });
   }
 
   onHangupButtonPressed() {
+    this.setState({micMuted: false, speakerOn: false, peerLoc: ''});
     hangup();
   } 
 

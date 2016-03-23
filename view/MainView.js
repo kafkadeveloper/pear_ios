@@ -19,7 +19,6 @@ let emojiloading = require('../js/emojiloading');
 
 const TRACKING_ID = 'UA-75025059-2';
 const CALLTONE = 'call-tone.mp3';
-const TIME_INITIAL = '00:00';
 const RED = '#ff6169';
 const BLUE = '#26476b';
 const GREY = '#e0e0e0';
@@ -177,38 +176,33 @@ class MainView extends Component {
 
   /* Button press event handlers */
   _onMainViewCallButtonPressed() {
-    this.setState({callButtonAble: false, hangupButtonAble: true}, () => {
+    this.setState({callButtonAble: false, deltaStr: ''}, () => {
       this.refs.aniviewcall.zoomOutDown(600).then( endstate => {});
       this._linearGradualBackgroundShiftBlue(() => {
         /* Bring in Hangup elements after animations */
-        this.setState({calling: true}, () => {
-          this._emojiIntervalStart();
-          this._callAudioStart();
-          this.props.onCallButtonPressed();
-        });
+        this.setState({calling: true, hangupButtonAble: true});
+        this._emojiIntervalStart();
+        this._callAudioStart();
+        this.props.onCallButtonPressed();
       });
     });
   }
 
   onMainViewHangupButtonPressed() {
-    this.setState({hangupButtonAble: false, callButtonAble: true, deltaStr: ''}, () => {
+    this.setState({hangupButtonAble: false}, () => {
+      clearInterval(this.state.emojiInterval);
+      clearInterval(this.state.callInterval);
+      this.callAudioStop();
+
       this.refs.aniviewflag.zoomOut(600).then( endstate => {});
       this.refs.aniviewdelta.zoomOut(600).then( endstate => {});
       this.refs.aniviewopt.zoomOut(600).then( endstate => {});
       this.refs.aniviewhang.zoomOut(600).then( endstate => {});
       this._linearGradualBackgroundShiftRed(() => {
-        this.callAudioStop();
         /* Bring in Call elements after animations */
-        this.setState({calling: false}, () => {
-          this.props.onHangupButtonPressed();
-        });
-        clearInterval(this.state.callInterval);
-        clearInterval(this.state.emojiInterval);
-        analytics(TRACKING_ID, 
-                  DeviceInfo.getUniqueID(),
-                  DeviceInfo.getDeviceLocale(),
-                  DeviceInfo.getReadableVersion(),
-                  this.state.deltaInt);
+        this.setState({calling: false, callButtonAble: true});
+        this.props.onHangupButtonPressed();
+        this.sendAnalytics();
       });
     });
   }
@@ -243,7 +237,7 @@ class MainView extends Component {
 
   /* Interval functions */
   callTimeIntervalStart() {
-    this.setState({callStartTime: new Date(), deltaStr: TIME_INITIAL, deltaInt: 0}, () => {
+    this.setState({callStartTime: new Date(), deltaStr: '00:00', deltaInt: 0}, () => {
       this.setState({
         callInterval: setInterval(() => { 
           let mss = Math.floor((new Date() - this.state.callStartTime) / 1000);
@@ -277,6 +271,15 @@ class MainView extends Component {
 
   callAudioStop() {
     AudioPlayer.stop();
+  }
+
+  /* Analytics functions */
+  sendAnalytics() {
+    analytics(TRACKING_ID, 
+              DeviceInfo.getUniqueID(), 
+              DeviceInfo.getDeviceLocale(), 
+              DeviceInfo.getReadableVersion(), 
+              this.state.deltaInt);
   }
 }
 

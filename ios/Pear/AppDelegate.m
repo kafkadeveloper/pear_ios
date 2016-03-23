@@ -34,7 +34,7 @@
 #if TARGET_IPHONE_SIMULATOR
   jsCodeLocation = [NSURL URLWithString:@"http://localhost:8081/index.ios.bundle?platform=ios&dev=true"];
 #else
-  jsCodeLocation = [NSURL URLWithString:@"http://10.1.91.181:8081/index.ios.bundle?platform=ios&dev=true"];
+  jsCodeLocation = [NSURL URLWithString:@"http://10.1.5.129:8081/index.ios.bundle?platform=ios&dev=true"];
 #endif
 
   /**

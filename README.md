@@ -1,8 +1,6 @@
 # Pear Dev
 
 #### TODO
-- code is too complicated
-- error handling
 - fix mute
 - [modal permission flow](https://facebook.github.io/react-native/docs/modal.html)
 - [white screen 1](http://stackoverflow.com/questions/34027270/ios-launch-screen-in-react-native), [white screen 2](https://github.com/facebook/react-native/issues/1402)
@@ -15,8 +13,9 @@
 
 #### Cost of operation
 - Google domain ($12.00/year)
-- Heroku ($84/year)
 - Apple developer account $100/year
+- Heroku ($84/year)
+Total: $196/year
 
 #### Ideas
 - Voice communication service that lets you talk to people around the world.
@@ -37,6 +36,7 @@
 - hashtag before hashtag
 - Frame drop in debug mode
 - add alert message with hangup callback
+- unhandled Promise Rejection
 
 ---
 
@@ -111,16 +111,13 @@
 #### React
 - [Kurt Weiberth](https://www.youtube.com/watch?v=fZKaq623y38)
 - [React + Electron](https://medium.com/@Agro/developing-desktop-applications-with-electron-and-react-40d117d97564#.nneodagkh)
-- [Course](http://courses.reactjsprogram.com/courses/reactjsfundamentals
-- )
+- [Course](http://courses.reactjsprogram.com/courses/reactjsfundamentals)
 
 #### Vim
 - [vimrc](https://github.com/amix/vimrc)
 - [dotfiles](https://dotfiles.github.io)
-- [](https://github.com/NLKNguyen/papercolor-theme)
-- [](https://github.com/vimwiki/vimwiki)
-- [](https://pqrs.org/osx/karabiner/)
-- [](https://pqrs.org/osx/karabiner/seil.html.en)
+- [vimwiki](https://github.com/vimwiki/vimwiki)
+- [karabiner](https://pqrs.org/osx/karabiner/)
 
 #### Misc.
 - [https](https://gethttpsforfree.com)
