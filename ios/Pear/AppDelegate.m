@@ -34,7 +34,7 @@
 #if TARGET_IPHONE_SIMULATOR
   jsCodeLocation = [NSURL URLWithString:@"http://localhost:8081/index.ios.bundle?platform=ios&dev=true"];
 #else
-  jsCodeLocation = [NSURL URLWithString:@"http://10.1.5.129:8081/index.ios.bundle?platform=ios&dev=true"];
+  jsCodeLocation = [NSURL URLWithString:@"http://10.1.1.50:8081/index.ios.bundle?platform=ios&dev=true"];
 #endif
 
   /**
@@ -45,12 +45,16 @@
    * react-native bundle --platform ios --dev false --entry-file index.ios.js --bundle-output iOS/main.jsbundle
    */
 
-//   jsCodeLocation = [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
+//  jsCodeLocation = [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 
   RCTRootView *rootView = [[RCTRootView alloc] initWithBundleURL:jsCodeLocation
                                                       moduleName:@"Pear"
                                                initialProperties:nil
                                                    launchOptions:launchOptions];
+  
+  NSArray *nibViews = [[NSBundle mainBundle] loadNibNamed:@"LaunchScreen" owner:self options:nil];
+  UIView *launchView = [nibViews objectAtIndex:0];
+  rootView.loadingView = launchView;
 
   self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
   UIViewController *rootViewController = [UIViewController new];

@@ -1,12 +1,24 @@
 # Pear Dev
 
 #### TODO
+
+Welcome to Pear,
+
+Pear let's you talk to people around the world.
+It's free, secure, and simple.
+
+Okay
+
+  Before we get started, Pear needs access to the microphone
+  so that people can hear you.
+
+if User picked no, show welcome screen with different message
+
+This is the call button, press it and Pear will start looking for your pair ;).
+
 - fix mute
 - [modal permission flow](https://facebook.github.io/react-native/docs/modal.html)
-- [white screen 1](http://stackoverflow.com/questions/34027270/ios-launch-screen-in-react-native), [white screen 2](https://github.com/facebook/react-native/issues/1402)
-- Website github pages
 - move to Google Cloud
-- DONE!
 
 #### Releases
 - v1.0.0 (April 22, 2016) *planned
@@ -22,14 +34,14 @@ Total: $196/year
 - Talk to people around the world.
 - Building a community around the app about discourse, connection
 - Secure, transparent, open.
-- Push notification of top trends
-- Trending hashtags
-- Friend list (but can you call them? or just see their online indicator)
-- Dashboard
-- Donation
+
+#### Feature Plans
+- Hashtag -> Trending hashtags -> Notification
 - Location
-- Hashtag
 - Number of people online
+- Friend list
+- Donation
+- Analytics dashboard
 
 #### Warnings and errors
 - WARNING: no real random source present!
@@ -65,6 +77,7 @@ Total: $196/year
 - [HireArt blog](http://code.hireart.com/2016/02/24/react-native-ios-app/)
 - [Hold button](http://browniefed.com/blog/2015/08/22/react-native-press-and-hold-button-actions/)
 - [Component communication](http://ctheu.com/2015/02/12/how-to-communicate-between-react-components/)
+- [white screen](http://stackoverflow.com/questions/34027270/ios-launch-screen-in-react-native)
 
 #### WebRTC
 - [signal](https://github.com/andyet/signalmaster)

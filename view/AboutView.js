@@ -8,6 +8,8 @@ import React, {
   Image,
 } from 'react-native';
 
+const VERSION='v1.0.0'
+
 class AboutView extends Component {
   render() {
     return (
@@ -16,7 +18,7 @@ class AboutView extends Component {
         </View>
         <View style={styles.bottomContainer}>
           <Image source={require('image!logo')} style={{width: 60, height: 60,}} />
-          <Text style={styles.versionText}>v0.0.1</Text> 
+          <Text style={styles.versionText}>{VERSION}</Text> 
           <Text style={styles.websiteText}>pearvoice.com</Text> 
         </View>
       </View>

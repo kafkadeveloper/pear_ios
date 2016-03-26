@@ -1,0 +1,88 @@
+html {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+  background: #ff6169; /* For browsers that do not support gradients */
+  background: -webkit-linear-gradient(bottom,rgba(255,97,105,0.65),rgba(255,97,105,1)); /*Safari 5.1-6*/
+  background: -o-linear-gradient(bottom,rgba(255,97,105,0.65),rgba(255,97,105,1)); /*Opera 11.1-12*/
+  background: -moz-linear-gradient(bottom,rgba(255,97,105,0.65),rgba(255,97,105,1)); /*Fx 3.6-15*/
+  background: linear-gradient(to bottom, rgba(255,97,105,0.65),rgba(255,97,105,1)); /*Standard*/
+  background-attachment: fixed;
+  color: #fff;
+}
+
+a:link,
+a:hover,
+a:visited,
+a:active {
+  color: #fff;
+  border: none;
+  text-decoration: none;
+
+  font-weight: 100;
+}
+
+h3,
+h3 a:link {
+  text-align: center;
+  font-size: 22px;
+  margin-top: 3px;
+  margin-bottom: 7px;
+  font-weight: 600;
+}
+
+h4,
+h4 a:link {
+  text-align: center;
+  font-size: 19px;
+  margin-top: 3px;
+  margin-bottom: 7px;
+  font-weight: 400;
+}
+
+p,
+p a:link {
+  text-align: right;
+  font-size: 15px;
+  margin-top: 15px;
+  font-weight: 400;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.center-box {
+  position: absolute;
+  bottom: 3%;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: 80%;
+  padding: 10px;
+}
+
+#logo {
+  width: 100%;
+  height: 102px;
+  background-size: 56px 102px;
+  background-image: url("../img/logo.png");
+  background-repeat: no-repeat;
+  background-position: top center;
+  margin-bottom: 75px;
+}
+
+#appstore {
+  display: block;
+  margin: 0 auto;
+  width: 135px;
+  height: 47px;
+  background-size: 135px 47px;
+  background-image: url("../img/appstore.png");
+  background-repeat: no-repeat;
+  background-position: top center;
+  margin-top: 20px;
+}

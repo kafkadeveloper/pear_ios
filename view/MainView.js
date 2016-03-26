@@ -153,13 +153,13 @@ class MainView extends Component {
     return (
       <View style={styles.container}>
         <View style={{flex: 0.5, justifyContent: 'center', alignItems:'center'}}>
-          <Text style={{alignSelf: 'center', color:'white', fontSize:30}}>Welcome screen</Text>
+          <Text style={{alignSelf: 'center', color:'white', fontSize:30}}>Welcome to Pear, Pear let's you talk to people around the world. It's free, secure, and simple.</Text>
         </View>
         <View style={{flex: 0.5, justifyContent: 'center', alignItems:'center'}}>
           <TouchableHighlight style={{width: 200, height: 40, alignItems:'center',justifyContent:'center', borderWidth:1, borderColor:'white', borderRadius:13, backgroundColor: 'transparent'}}
                               underlayColor={GREY}
                               onPress={this.props.onWelcomeButtonPressed}>
-            <Text style={{color: 'white', fontSize: 18}}>Let's get started 😀</Text>
+            <Text style={{color: 'white', fontSize: 18}}>Cool</Text>
           </TouchableHighlight>
         </View>
       </View>
