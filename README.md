@@ -1,23 +1,8 @@
 # Pear Dev
 
 #### TODO
-
-Welcome to Pear,
-
-Pear let's you talk to people around the world.
-It's free, secure, and simple.
-
-Okay
-
-  Before we get started, Pear needs access to the microphone
-  so that people can hear you.
-
-if User picked no, show welcome screen with different message
-
-This is the call button, press it and Pear will start looking for your pair ;).
-
+- permission flow
 - fix mute
-- [modal permission flow](https://facebook.github.io/react-native/docs/modal.html)
 - move to Google Cloud
 
 #### Releases

@@ -20,14 +20,11 @@ import MainView from './view/MainView';
 window.navigator.userAgent = 'react-native';
 let io = require('socket.io-client/socket.io');
 let isocountry = require('./js/isocountry');
-
-/* Native modules */
 let AppKey = NativeModules.Key;
 let MicCheck = NativeModules.MicCheck;
 
 /* Permanent storage keys */
-const REV = '24'
-const STORAGE_FRESH = '@PearStorage:fresh' + REV;
+const REV = '37';
 const STORAGE_MIC = '@PearStorage:mic' + REV;
 const STORAGE_LOC = '@PearStorage:loc' + REV;
 const STORAGE_UPT = '@PearStorage:upt' + REV;
@@ -200,8 +197,7 @@ class Pear extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      fresh: false,
-      micPermission: 'YES',
+      first: false,
       loc: '',
       peerLoc: '',
 
@@ -211,9 +207,8 @@ class Pear extends Component {
   }
 
   componentDidMount() {
-    console.log('mount');
     component = this;
-    this._checkFreshAndMicState().done;
+    this._checkFirst().done;
     this._checkAndUpdateUptAndLocState().done;
   }
 
@@ -231,32 +226,30 @@ class Pear extends Component {
   }
 
   /* Async storage methods */
-  async _checkFreshAndMicState() {
-    console.log('_checkFreshAndMicState');
+  async _checkFirst() {
     try {
-      let freshValue = await AsyncStorage.getItem(STORAGE_FRESH);
-      let micValue = await AsyncStorage.getItem(STORAGE_MIC);
-      /* First-ever loading */
-      if (!freshValue) {
-        this.setState({fresh: true, micPermission: 'NO'});
-        await AsyncStorage.setItem(STORAGE_FRESH, new Date().toString());
-        await AsyncStorage.setItem(STORAGE_MIC, 'NO');
-      } else {
-        /* Subsequent loading */
-        if (this.state.micPermission !== micValue)
-          this.setState({micPermission: micValue});
-      }
+      let firstValue = await AsyncStorage.getItem(STORAGE_MIC);
+      if (!firstValue)
+        this.setState({first: true});
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async _updateFirst() {
+    try {
+      AsyncStorage.setItem(STORAGE_MIC, 'true');
+      this.setState({first: false});
     } catch (error) {
       console.log(error);
     }
   }
 
   async _checkAndUpdateUptAndLocState() {
-    console.log('_checkAndUpdateUptAndLocState');
     try {
       let uptValue = await AsyncStorage.getItem(STORAGE_UPT);
       if ((new Date() - new Date(uptValue)) > 3600000) {
-        console.log('update loc state');
+        // console.log('update loc state');
         await this._getLoc(currLoc => {
           if (currLoc) {
             let currTime = new Date().toString();
@@ -268,7 +261,7 @@ class Pear extends Component {
         });
       } else {
         if (!this.state.loc) {
-          console.log('retrieve loc state');
+          // console.log('retrieve loc state');
           let locValue = await AsyncStorage.getItem(STORAGE_LOC);
           this.setState({loc: locValue});
         }
@@ -278,19 +271,9 @@ class Pear extends Component {
     }
   }
 
-  async _updateMicState() {
-    console.log('_updateMicState');
-    try {
-      await AsyncStorage.setItem(STORAGE_MIC, 'YES');
-      this.setState({micPermission: 'YES'});
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
   render() {
     return (<MainView peerLoc={this.state.peerLoc}
-                      fresh={this.state.fresh}
+                      first={this.state.first}
                       micMuted={this.state.micMuted}
                       speakerOn={this.state.speakerOn}
                       onCallButtonPressed={this.onCallButtonPressed.bind(this)}
@@ -303,7 +286,16 @@ class Pear extends Component {
 
   /* Button events */
   onWelcomeButtonPressed() {
-    this.setState({fresh: false});
+    MicCheck.micCheck((error, key) => {
+      if (key === 0) {
+        Alert.alert('🎙 Access Needed', 'Pear is a voice communication app. As such, it needs microphone access. Please find Pear at the bottom of the Settings app, and turn on Microphone Access.');
+      } else if (key === 1) {
+        this._updateFirst().done;
+      } else if (key === -1) {
+
+      }
+      // alert(key);
+    });
   }
 
   onCallButtonPressed() {

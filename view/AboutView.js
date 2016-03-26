@@ -8,7 +8,7 @@ import React, {
   Image,
 } from 'react-native';
 
-const VERSION='v1.0.0'
+const VERSION='v1.0.1'
 
 class AboutView extends Component {
   render() {

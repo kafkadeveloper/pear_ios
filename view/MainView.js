@@ -47,13 +47,8 @@ class MainView extends Component {
   }
 
   render() {
-    if (this.props.fresh)
+    if (this.props.first)
       return this._renderWelcomeView();
-
-    /* Permission screen */
-    // if (this.state.micPermission !== 'YES') {  // TODO make a modal view for this and show at call
-    //   return this.renderPermissionView();
-    // }
 
     if (this.state.calling)
       return this._renderHangupView();
@@ -62,6 +57,29 @@ class MainView extends Component {
   }
 
   /* Render functions */
+  _renderWelcomeView() {
+    return (
+      <View style={styles.container}>
+        <View style={{flex: 0.35, alignSelf: 'center', alignItems: 'center', justifyContent: 'flex-end'}}>
+          <Image source={require('image!logo')} style={{width: 60, height: 60,}} />
+        </View>
+        <View style={{flex: 0.25, alignSelf: 'center', alignItems: 'center', justifyContent: 'flex-end', width: 300}}>
+          <Text style={styles.h1}>Pear is a free and secure app for talking people around the world.</Text>
+        </View>
+        <View style={{flex: 0.25, alignSelf: 'center', alignItems: 'center', justifyContent: 'center', width: 290}}>
+          <Text style={styles.h2}>Before we get started, Pear needs mic access for voice communication.</Text>
+        </View>
+        <View style={{flex: 0.15, alignSelf: 'center', alignItems: 'center', justifyContent: 'flex-start'}}>
+          <TouchableHighlight style={{width: 150, height: 40, alignItems:'center', justifyContent:'center', borderWidth:2, borderColor:'white', borderRadius:13, backgroundColor: 'transparent'}}
+                              underlayColor={GREY}
+                              onPress={this.props.onWelcomeButtonPressed}>
+            <Text style={{color: 'white', fontSize: 18, fontWeight: 'bold',}}>Okay</Text>
+          </TouchableHighlight>
+        </View>
+      </View>
+    );
+  }
+  
   _renderCallView() {
     return (
       <Swiper style={styles.wrapper} loop={false} index={1} showsPagination={false}>
@@ -146,31 +164,6 @@ class MainView extends Component {
                           onPress={this.props.onSpeakerButtonPressed}>
         <Image source={buttonImage} style={{width: 20, height: 20,}} />
       </TouchableHighlight>
-    );
-  }
-
-  _renderWelcomeView() {
-    return (
-      <View style={styles.container}>
-        <View style={{flex: 0.5, justifyContent: 'center', alignItems:'center'}}>
-          <Text style={{alignSelf: 'center', color:'white', fontSize:30}}>Welcome to Pear, Pear let's you talk to people around the world. It's free, secure, and simple.</Text>
-        </View>
-        <View style={{flex: 0.5, justifyContent: 'center', alignItems:'center'}}>
-          <TouchableHighlight style={{width: 200, height: 40, alignItems:'center',justifyContent:'center', borderWidth:1, borderColor:'white', borderRadius:13, backgroundColor: 'transparent'}}
-                              underlayColor={GREY}
-                              onPress={this.props.onWelcomeButtonPressed}>
-            <Text style={{color: 'white', fontSize: 18}}>Cool</Text>
-          </TouchableHighlight>
-        </View>
-      </View>
-    );
-  }
-
-  _renderPermissionView() {
-    return (
-      <View style={styles.container}>
-        <Text>Permission</Text>
-      </View>
     );
   }
 
@@ -360,6 +353,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 30,
     marginLeft: 30,
+  },
+  h1: {
+    color: 'white',
+    fontSize: 21,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  h2: {
+    color:'white', 
+    fontSize:14,
+    textAlign: 'center',
   },
 });
 
