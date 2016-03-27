@@ -24,7 +24,7 @@ let AppKey = NativeModules.Key;
 let MicCheck = NativeModules.MicCheck;
 
 /* Permanent storage keys */
-const REV = '37';
+const REV = '38';
 const STORAGE_MIC = '@PearStorage:mic' + REV;
 const STORAGE_LOC = '@PearStorage:loc' + REV;
 const STORAGE_UPT = '@PearStorage:upt' + REV;
@@ -39,7 +39,8 @@ let localStream;
 let socket;
 let component;
 let tempPeerLoc;
-const PC_CONFIG = {"iceServers": [{url:'stun:stun01.sipphone.com'},
+const PC_CONFIG = {"iceServers": [ {url:'stun:stun.l.google.com:19302'},
+                                  {url:'stun:stun01.sipphone.com'},
                                   {url:'stun:stun.services.mozilla.com'},
                                   {url:'stun:stun.fwdnet.net'},
                                   {url:'stun:stun.ekiga.net'},
@@ -86,6 +87,12 @@ function createPC(socketId, isOffer) {
     } else if (event.target.iceConnectionState === 'disconnected') {
       component.refs.mainView.onMainViewHangupButtonPressed();
     }
+  };
+  pc.onsignalingstatechange = event => {
+    console.log('onsignalingstatechange', event.target.signalingState);
+  };
+  pc.onaddstream = event => {
+    component.setState({remoteSrc: event.stream.toURL()});
   };
 
   pc.addStream(localStream);
@@ -308,7 +315,7 @@ class Pear extends Component {
   onHangupButtonPressed() {
     this.setState({micMuted: false, speakerOn: false, peerLoc: ''});
     hangup();
-  } 
+  }
 
   onMuteButtonPressed() {  // TODO
     if (myPC) {

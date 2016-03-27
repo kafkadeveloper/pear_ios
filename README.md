@@ -1,24 +1,25 @@
 # Pear Dev
 
 #### TODO
+- Received data was not a string, or was not a recognised encoding.
 - permission flow
 - fix mute
 - move to Google Cloud
 
-#### Releases
-- v1.0.0 (April 22, 2016) *planned
+#### Timeline
+- v0.0.0 (December 20, 2013) Idea inception
+- v0.0.1 (January 1, 2016) Project inception
+- v1.0.1 (April 22, 2016) Public release
 
-#### Cost of operation
+#### Cost of Operation
 - Google domain ($12.00/year)
 - Apple developer account $100/year
 - Heroku ($84/year)
+
 Total: $196/year
 
-#### Ideas
-- Voice communication service that lets you talk to people around the world.
-- Talk to people around the world.
-- Building a community around the app about discourse, connection
-- Secure, transparent, open.
+#### Strategy
+
 
 #### Feature Plans
 - Hashtag -> Trending hashtags -> Notification

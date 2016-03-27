@@ -63,10 +63,10 @@ class MainView extends Component {
         <View style={{flex: 0.35, alignSelf: 'center', alignItems: 'center', justifyContent: 'flex-end'}}>
           <Image source={require('image!logo')} style={{width: 60, height: 60,}} />
         </View>
-        <View style={{flex: 0.25, alignSelf: 'center', alignItems: 'center', justifyContent: 'flex-end', width: 300}}>
-          <Text style={styles.h1}>Pear is a free and secure app for talking people around the world.</Text>
+        <View style={{flex: 0.35, alignSelf: 'center', alignItems: 'center', justifyContent: 'flex-end', width: 300}}>
+          <Text style={styles.h1}>Pear is a free and secure app for talking to people around the world.</Text>
         </View>
-        <View style={{flex: 0.25, alignSelf: 'center', alignItems: 'center', justifyContent: 'center', width: 290}}>
+        <View style={{flex: 0.15, alignSelf: 'center', alignItems: 'center', justifyContent: 'center', width: 290}}>
           <Text style={styles.h2}>Before we get started, Pear needs mic access for voice communication.</Text>
         </View>
         <View style={{flex: 0.15, alignSelf: 'center', alignItems: 'center', justifyContent: 'flex-start'}}>
@@ -259,11 +259,11 @@ class MainView extends Component {
 
   /* Audio functions */
   _callAudioStart() {
-    AudioPlayer.play(CALLTONE);
+    // AudioPlayer.play(CALLTONE);
   }
 
   callAudioStop() {
-    AudioPlayer.stop();
+    // AudioPlayer.stop();
   }
 
   /* Analytics functions */
