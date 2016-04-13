@@ -79,7 +79,7 @@ class MainView extends Component {
       </View>
     );
   }
-  
+
   _renderCallView() {
     return (
       <Swiper style={styles.wrapper} loop={false} index={1} showsPagination={false}>
@@ -139,7 +139,7 @@ class MainView extends Component {
         </View>
       </View>
     );
-  } 
+  }
 
   _renderMuteButton() {
     let buttonStyle = this.props.micMuted ? styles.audioControlButtonOn : styles.audioControlButtonOff;
@@ -157,7 +157,7 @@ class MainView extends Component {
   _renderSpeakerButton() {
     let buttonStyle = this.props.speakerOn ? styles.audioControlButtonOn : styles.audioControlButtonOff;
     let buttonImage = this.props.speakerOn ? require('image!speakerOn') : require('image!speakerOff');
- 
+
     return (
       <TouchableHighlight style={buttonStyle}
                           underlayColor={GREY}
@@ -232,7 +232,7 @@ class MainView extends Component {
   callTimeIntervalStart() {
     this.setState({callStartTime: new Date(), deltaStr: '00:00', deltaInt: 0}, () => {
       this.setState({
-        callInterval: setInterval(() => { 
+        callInterval: setInterval(() => {
           let mss = Math.floor((new Date() - this.state.callStartTime) / 1000);
           let secs = mss % 60;
           let mins = Math.floor(mss / 60);
@@ -268,10 +268,10 @@ class MainView extends Component {
 
   /* Analytics functions */
   sendAnalytics() {
-    analytics(TRACKING_ID, 
-              DeviceInfo.getUniqueID(), 
-              DeviceInfo.getDeviceLocale(), 
-              DeviceInfo.getReadableVersion(), 
+    analytics(TRACKING_ID,
+              DeviceInfo.getUniqueID(),
+              DeviceInfo.getDeviceLocale(),
+              DeviceInfo.getReadableVersion(),
               this.state.deltaInt);
   }
 }
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   h2: {
-    color:'white', 
+    color:'white',
     fontSize:14,
     textAlign: 'center',
   },

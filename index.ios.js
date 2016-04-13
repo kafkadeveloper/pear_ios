@@ -40,17 +40,17 @@ let socket;
 let component;
 let tempPeerLoc;
 const PC_CONFIG = {"iceServers": [ {url:'stun:stun.l.google.com:19302'},
-                                  {url:'stun:stun01.sipphone.com'},
-                                  {url:'stun:stun.services.mozilla.com'},
-                                  {url:'stun:stun.fwdnet.net'},
-                                  {url:'stun:stun.ekiga.net'},
-                                  {url:'stun:stun.iptel.org'},
-                                  {url:'stun:stun.schlund.de'},
-                                  {url:'stun:stun.l.google.com:19302'},
-                                  {url:'stun:stun1.l.google.com:19302'},
-                                  {url:'stun:stun2.l.google.com:19302'},
-                                  {url:'stun:stun3.l.google.com:19302'},
-                                  {url:'stun:stun4.l.google.com:19302'}]};
+                                   {url:'stun:stun01.sipphone.com'},
+                                   {url:'stun:stun.services.mozilla.com'},
+                                   {url:'stun:stun.fwdnet.net'},
+                                   {url:'stun:stun.ekiga.net'},
+                                   {url:'stun:stun.iptel.org'},
+                                   {url:'stun:stun.schlund.de'},
+                                   {url:'stun:stun.l.google.com:19302'},
+                                   {url:'stun:stun1.l.google.com:19302'},
+                                   {url:'stun:stun2.l.google.com:19302'},
+                                   {url:'stun:stun3.l.google.com:19302'},
+                                   {url:'stun:stun4.l.google.com:19302'} ]};
 
 function createPC(socketId, isOffer) {
   let pc = new RTCPeerConnection(PC_CONFIG);
@@ -75,7 +75,7 @@ function createPC(socketId, isOffer) {
   };
   pc.oniceconnectionstatechange = event => {
     console.log('oniceconnectionstatechange', event.target.iceConnectionState);
-    if (event.target.iceConnectionState === 'connected' || 
+    if (event.target.iceConnectionState === 'connected' ||
         event.target.iceConnectionState === 'completed') {
       if (!component.state.peerLoc) {   /* Prevent hitting both 'connected' and 'completed' */
         socket.disconnect();
@@ -109,7 +109,7 @@ function exchange(data) {
   if (data.sdp) {
     myPC.setRemoteDescription(new RTCSessionDescription(data.sdp), () => {
       if (myPC.remoteDescription.type == "offer") {
-        myPC.createAnswer(desc => {          
+        myPC.createAnswer(desc => {
           myPC.setLocalDescription(desc, () => {
             socket.emit('exchange', {'to': fromId, 'sdp': myPC.localDescription});
           }, logError);

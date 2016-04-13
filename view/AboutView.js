@@ -14,19 +14,19 @@ class AboutView extends Component {
   render() {
     return (
       <View style={{flex: 1, flexDirection: 'column', backgroundColor: this.props.bg}}>
-        <View style={styles.topContainer}> 
+        <View style={styles.topContainer}>
         </View>
         <View style={styles.bottomContainer}>
           <Image source={require('image!logo')} style={{width: 60, height: 60,}} />
-          <Text style={styles.versionText}>{VERSION}</Text> 
-          <Text style={styles.websiteText}>pearvoice.com</Text> 
+          <Text style={styles.versionText}>{VERSION}</Text>
+          <Text style={styles.websiteText}>pearvoice.com</Text>
         </View>
       </View>
     );
   }
 }
 
-const styles = StyleSheet.create({ 
+const styles = StyleSheet.create({
   topContainer: {
     flex: 0.80,
     justifyContent: 'center',
