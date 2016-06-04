@@ -1,4 +1,5 @@
 'use strict';
+
 import React, {
   Component,
 } from 'react';
@@ -14,7 +15,7 @@ import * as Animatable from 'react-native-animatable';
 import Swiper from 'react-native-swiper';
 import AboutView from './AboutView';
 
-let {AudioPlayer} = require('react-native-audio');
+// let {AudioPlayer} = require('react-native-audio');
 let analytics = require('../js/analytics');
 let emojiloading = require('../js/emojiloading');
 

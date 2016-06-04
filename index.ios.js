@@ -1,8 +1,6 @@
 'use strict';
 
-import React, {
-  Component,
-} from 'react';
+import React, { Component } from 'react';
 import {
   AppRegistry,
   AsyncStorage,
@@ -16,10 +14,15 @@ import WebRTC, {
   RTCSessionDescription,
   RTCView,
   RTCSetting,
+  MediaStreamTrack,
+  getUserMedia,
 } from 'react-native-webrtc';
 import MainView from './view/MainView';
 
-window.navigator.userAgent = 'react-native';
+if (!window.navigator.userAgent) {
+  window.navigator.userAgent = 'react-native';
+}
+
 let io = require('socket.io-client/socket.io');
 let isocountry = require('./js/isocountry');
 let AppKey = NativeModules.Key;
@@ -53,6 +56,12 @@ const PC_CONFIG = {"iceServers": [ {url:'stun:stun.l.google.com:19302'},
                                    {url:'stun:stun2.l.google.com:19302'},
                                    {url:'stun:stun3.l.google.com:19302'},
                                    {url:'stun:stun4.l.google.com:19302'} ]};
+
+/* NEW SHIT */
+// function getLocalStream(isFront, callback) {
+  // MediaStreamTrack.getSources(sourceInfos => {
+    // getUserMedia({"audio": true, "video": false});
+/* END NEW SHIT */
 
 function createPC(socketId, isOffer) {
   let pc = new RTCPeerConnection(PC_CONFIG);
@@ -185,16 +194,18 @@ function listen() {
 
   socket.on('lochange', data=> {
     tempPeerLoc = isocountry(data.loc);
-    if (data.offer)
+    if (data.offer) {
       socket.emit('lochange', {'to': data.from, 'loc': component.state.loc, 'offer': false});
+    }
   });
 }
 
 function makeRoomId() {
   let text = "";
   let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  for (let i = 0; i < 10; i++)
+  for (let i = 0; i < 10; i++) {
     text += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
   return text;
 }
 
@@ -227,10 +238,11 @@ class Pear extends Component {
     fetch(url).then(res => {
       return res.text();
     }).then(body => {
-      if (body.trim().length != 2)
+      if (body.trim().length != 2) {
         callback();
-      else
+      } else {
         callback(body.trim());
+      }
     });
   }
 
@@ -238,8 +250,9 @@ class Pear extends Component {
   async _checkFirst() {
     try {
       let firstValue = await AsyncStorage.getItem(STORAGE_MIC);
-      if (!firstValue)
+      if (!firstValue) {
         this.setState({first: true});
+      }
     } catch (error) {
       console.log(error);
     }
@@ -264,8 +277,9 @@ class Pear extends Component {
             let currTime = new Date().toString();
             AsyncStorage.setItem(STORAGE_LOC, currLoc);
             AsyncStorage.setItem(STORAGE_UPT, currTime);
-            if (this.state.loc !== currLoc)
+            if (this.state.loc !== currLoc) {
               this.setState({loc: currLoc});
+            }
           }
         });
       } else {
@@ -343,4 +357,3 @@ class Pear extends Component {
 }
 
 AppRegistry.registerComponent('Pear', () => Pear);
-
