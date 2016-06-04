@@ -33,12 +33,12 @@ const STORAGE_UPT = '@PearStorage:upt' + REV;
 const URL = 'https://stark-plains-31370.herokuapp.com/api/webrtc';
 
 /* Set up & Initialize global variables */
-const pcPeers = {};
 let myPC;
 let localStream;
 let socket;
 let component;
 let tempPeerLoc;
+const pcPeers = {};
 const PC_CONFIG = {"iceServers": [ {url:'stun:stun.l.google.com:19302'},
                                    {url:'stun:stun01.sipphone.com'},
                                    {url:'stun:stun.services.mozilla.com'},
