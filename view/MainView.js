@@ -1,7 +1,8 @@
 'use strict';
-
 import React, {
   Component,
+} from 'react';
+import {
   StyleSheet,
   View,
   Text,
@@ -9,7 +10,7 @@ import React, {
   TouchableHighlight,
 } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
-import Animatable from 'react-native-animatable';
+import * as Animatable from 'react-native-animatable';
 import Swiper from 'react-native-swiper';
 import AboutView from './AboutView';
 

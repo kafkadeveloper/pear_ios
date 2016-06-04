@@ -4,10 +4,6 @@ import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 
-import com.oney.WebRTCModule.WebRTCModulePackage; // WebRTC
-
-import com.learnium.RNDeviceInfo.*; // DeviceInfo
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,16 +27,14 @@ public class MainActivity extends ReactActivity {
         return BuildConfig.DEBUG;
     }
 
-   /**
-   * A list of packages used by the app. If the app uses additional views
-   * or modules besides the default ones, add more packages here.
-   */
+    /**
+     * A list of packages used by the app. If the app uses additional views
+     * or modules besides the default ones, add more packages here.
+     */
     @Override
     protected List<ReactPackage> getPackages() {
-      return Arrays.<ReactPackage>asList(
-        new MainReactPackage(),
-        new WebRTCModulePackage(this),
-        new RNDeviceInfo()
-      );
+        return Arrays.<ReactPackage>asList(
+            new MainReactPackage()
+        );
     }
 }
