@@ -34,37 +34,38 @@ const STORAGE_MIC = '@PearStorage:mic' + REV;
 const STORAGE_LOC = '@PearStorage:loc' + REV;
 const STORAGE_UPT = '@PearStorage:upt' + REV;
 
+/* Error Messages */
+const MIC_ACCESS_NEEDED = 'Pear is a voice communication app. ' +
+                          'As such, it needs microphone access. ' +
+                          'Please find Pear in the Settings app and ' +
+                          'turn on Microphone Access.';
+
 /* Server */
 const URL = 'https://stark-plains-31370.herokuapp.com/api/webrtc';
 
 /* Set up & Initialize global variables */
-let myPC;
 let localStream;
 let socket;
 let component;
 let tempPeerLoc;
 const pcPeers = {};
-const PC_CONFIG = {"iceServers": [ {url:'stun:stun.l.google.com:19302'},
-                                   {url:'stun:stun01.sipphone.com'},
-                                   {url:'stun:stun.services.mozilla.com'},
-                                   {url:'stun:stun.fwdnet.net'},
-                                   {url:'stun:stun.ekiga.net'},
-                                   {url:'stun:stun.iptel.org'},
-                                   {url:'stun:stun.schlund.de'},
-                                   {url:'stun:stun.l.google.com:19302'},
-                                   {url:'stun:stun1.l.google.com:19302'},
-                                   {url:'stun:stun2.l.google.com:19302'},
-                                   {url:'stun:stun3.l.google.com:19302'},
-                                   {url:'stun:stun4.l.google.com:19302'} ]};
+const pc_configuration = {"iceServers": [ {url:'stun:stun.l.google.com:19302'},
+                                          {url:'stun:stun01.sipphone.com'},
+                                          {url:'stun:stun.services.mozilla.com'},
+                                          {url:'stun:stun.fwdnet.net'},
+                                          {url:'stun:stun.ekiga.net'},
+                                          {url:'stun:stun.iptel.org'},
+                                          {url:'stun:stun.schlund.de'},
+                                          {url:'stun:stun.l.google.com:19302'},
+                                          {url:'stun:stun1.l.google.com:19302'},
+                                          {url:'stun:stun2.l.google.com:19302'},
+                                          {url:'stun:stun3.l.google.com:19302'},
+                                          {url:'stun:stun4.l.google.com:19302'}
+                                        ]};
 
-/* NEW SHIT */
-// function getLocalStream(isFront, callback) {
-  // MediaStreamTrack.getSources(sourceInfos => {
-    // getUserMedia({"audio": true, "video": false});
-/* END NEW SHIT */
 
 function createPC(socketId, isOffer) {
-  let pc = new RTCPeerConnection(PC_CONFIG);
+  let pc = new RTCPeerConnection(pc_configuration);
   pcPeers[socketId] = pc;
 
   function createOffer() {
@@ -81,21 +82,23 @@ function createPC(socketId, isOffer) {
       socket.emit('exchange', {'to': socketId, 'candidate': event.candidate});
   };
   pc.onnegotiationneeded = () => {
-    if (isOffer)
+    if (isOffer) {
       createOffer();
+    }
   };
   pc.oniceconnectionstatechange = event => {
     console.log('oniceconnectionstatechange', event.target.iceConnectionState);
-    if (event.target.iceConnectionState === 'connected' ||
-        event.target.iceConnectionState === 'completed') {
-      if (!component.state.peerLoc) {   /* Prevent hitting both 'connected' and 'completed' */
+    let iceState = event.target.iceConnectionState;
+    if (iceState === 'connected' || iceState === 'completed') {
+      /* Prevent hitting both 'connected' and 'completed' */
+      if (!component.state.peerLoc) {
         socket.disconnect();
         component.refs.mainView.callAudioStop();
         clearInterval(component.refs.mainView.state.emojiInterval);
         component.refs.mainView.callTimeIntervalStart();
         component.setState({peerLoc: tempPeerLoc});
       }
-    } else if (event.target.iceConnectionState === 'disconnected') {
+    } else if (iceState === 'disconnected') {
       component.refs.mainView.onMainViewHangupButtonPressed();
     }
   };
@@ -105,58 +108,65 @@ function createPC(socketId, isOffer) {
   pc.onaddstream = event => {
     component.setState({remoteSrc: event.stream.toURL()});
   };
-
+  pc.onremovestream = event => {
+    console.log('onremovestream', event.stream);
+  }
   pc.addStream(localStream);
   return pc;
 }
 
 function exchange(data) {
   let fromId = data.from;
-  if (fromId in pcPeers)
-    myPC = pcPeers[fromId];
-  else
-    myPC = createPC(fromId, false);
+  let pc;
+  if (fromId in pcPeers) {
+    pc = pcPeers[fromId];
+  } else {
+    pc = createPC(fromId, false);
+  }
 
   if (data.sdp) {
-    myPC.setRemoteDescription(new RTCSessionDescription(data.sdp), () => {
-      if (myPC.remoteDescription.type == "offer") {
-        myPC.createAnswer(desc => {
-          myPC.setLocalDescription(desc, () => {
-            socket.emit('exchange', {'to': fromId, 'sdp': myPC.localDescription});
+    pc.setRemoteDescription(new RTCSessionDescription(data.sdp), () => {
+      if (pc.remoteDescription.type == "offer") {
+        pc.createAnswer(desc => {
+          pc.setLocalDescription(desc, () => {
+            socket.emit('exchange', {'to': fromId, 'sdp': pc.localDescription});
           }, logError);
         }, logError);
       }
     }, logError);
   } else {
-    myPC.addIceCandidate(new RTCIceCandidate(data.candidate));
+    pc.addIceCandidate(new RTCIceCandidate(data.candidate));
   }
 }
 
 function join(roomId) {
   socket.emit('join', roomId, socketIds => {
-    for (let i in socketIds)
+    for (let i in socketIds) {
       createPC(socketIds[i], true);
+    }
   });
 }
 
 function getLocalStream(callback) {
-  let constraints = {video: false, audio: true};
-  navigator.getUserMedia(constraints, stream => {
-    callback(stream);
-  }, logError);
+  MediaStreamTrack.getSources(sourceInfos => {
+    let constraints = {"audio": true, "video": false};
+    getUserMedia(constraints, stream => {
+      callback(stream);
+    }, logError);
+  });
 }
 
 function hangup() {
   /* Disconnect from server */
-  if (socket)
+  if (socket) {
     socket.disconnect();
+  }
 
   /* Close peer connection and delete them */
   for (let socketId in pcPeers) {
     pcPeers[socketId].close();
     delete pcPeers[socketId];
   }
-  myPC = null;  // TODO
 
   /* Hanging up settings */
   RTCSetting.setAudioOutput('handset');
@@ -220,7 +230,6 @@ class Pear extends Component {
       first: false,
       loc: '',
       peerLoc: '',
-
       micMuted: false,
       speakerOn: false,
     };
@@ -311,20 +320,28 @@ class Pear extends Component {
   onWelcomeButtonPressed() {
     MicCheck.micCheck((error, key) => {
       if (key === 0) {
-        Alert.alert('🎙 Access Needed', 'Pear is a voice communication app. As such, it needs microphone access. Please find Pear at the bottom of the Settings app, and turn on Microphone Access.');
+        Alert.alert('🎙 Access Needed', MIC_ACCESS_NEEDED);
       } else if (key === 1) {
         this._updateFirst().done;
       } else if (key === -1) {
 
       }
-      // alert(key);
     });
   }
 
   onCallButtonPressed() {
-    AppKey.getKey((error, key) => {
-      socket = io(URL, { query: 'secret='+key, forceNew: true });
-      listen();
+    MicCheck.micCheck((error, key) => {
+      if (key === 1) {
+        AppKey.getKey((error, key) => {
+          socket = io(URL, {query: 'secret='+key,
+                            forceNew: true,
+                            transports:['websocket']});
+          listen();
+        });
+      } else {
+        component.refs.mainView.onMainViewHangupButtonPressed();
+        Alert.alert('🎙 Access Needed', MIC_ACCESS_NEEDED);
+      }
     });
   }
 
@@ -334,14 +351,10 @@ class Pear extends Component {
   }
 
   onMuteButtonPressed() {  // TODO
-    if (myPC) {
-      if (this.state.micMuted) {
-        this.setState({micMuted: false});
-        myPC.addStream(localStream);
-      } else {
-        this.setState({micMuted: true});
-        myPC.removeStream(localStream);
-      }
+    if (this.state.micMuted) {
+      this.setState({micMuted: false});
+    } else {
+      this.setState({micMuted: true});
     }
   }
 
