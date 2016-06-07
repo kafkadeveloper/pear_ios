@@ -15,7 +15,7 @@ import * as Animatable from 'react-native-animatable';
 import Swiper from 'react-native-swiper';
 import AboutView from './AboutView';
 
-// let {AudioPlayer} = require('react-native-audio');
+let {AudioPlayer} = require('react-native-audio');
 let analytics = require('../js/analytics');
 let emojiloading = require('../js/emojiloading');
 
@@ -46,6 +46,9 @@ class MainView extends Component {
       deltaStr: '',
       deltaInt: 0,
     };
+  }
+
+  componentDidMount() {
   }
 
   render() {
@@ -261,11 +264,11 @@ class MainView extends Component {
 
   /* Audio functions */
   _callAudioStart() {
-    // AudioPlayer.play(CALLTONE);
+    AudioPlayer.playWithUrl('call-tone.mp3', {numberOfLoops: -1});
   }
 
   callAudioStop() {
-    // AudioPlayer.stop();
+    AudioPlayer.stop();
   }
 
   /* Analytics functions */

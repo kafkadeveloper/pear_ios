@@ -1,28 +1,22 @@
-# Pear Dev
+# Pear Development
 
 ### TODO
-- emoji flags
-- Received data was not a string, or was not a recognised encoding.
-- permission flow
-- fix mute
 - move to Google Cloud
 
-### Timeline
-- v0.0.0 (December 20, 2013) Idea inception
-- v0.0.1 (January 1, 2016) Project inception
-- v1.0.1 (April 22, 2016) Public release
+### Versions
+- v0.0.0 12/20/2013 Idea inception
+- v0.0.1 01/01/2016 Project inception
+- v1.0.1 07/xx/2016 Beta release
 
-### Cost of Operation
-- Google domain ($12.00/year)
-- Apple developer account $100/year
-- Heroku ($84/year)
-
-Total: $196/year
+### Annual Cost of Operation = $196
+- Google domain $12.00
+- Heroku $84
+- Apple developer account $100
 
 ### Strategy
 
 
-### Feature Plans
+### Future Features
 - Hashtag -> Trending hashtags -> Notification
 - Location
 - Number of people online
@@ -36,6 +30,7 @@ Total: $196/year
 - Frame drop in debug mode
 - add alert message with hangup callback
 - unhandled Promise Rejection
+- Received data was not a string, or was not a recognised encoding.
 
 ### Dev Links
 #### Node

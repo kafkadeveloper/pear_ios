@@ -149,7 +149,7 @@ function join(roomId) {
 
 function getLocalStream(callback) {
   MediaStreamTrack.getSources(sourceInfos => {
-    let constraints = {"audio": true, "video": false};
+    let constraints = {audio: true, video: false};
     getUserMedia(constraints, stream => {
       callback(stream);
     }, logError);
@@ -352,8 +352,10 @@ class Pear extends Component {
 
   onMuteButtonPressed() {  // TODO
     if (this.state.micMuted) {
+      localStream.getAudioTracks()[0].enabled = true;
       this.setState({micMuted: false});
     } else {
+      localStream.getAudioTracks()[0].enabled = false;
       this.setState({micMuted: true});
     }
   }
