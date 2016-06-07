@@ -324,7 +324,7 @@ class Pear extends Component {
       } else if (key === 1) {
         this._updateFirst().done;
       } else if (key === -1) {
-
+        console.log("Error while checking mic access state");
       }
     });
   }
