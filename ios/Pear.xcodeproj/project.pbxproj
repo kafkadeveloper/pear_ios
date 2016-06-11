@@ -31,13 +31,13 @@
 		222AC92D1C72BAD200C72B6C /* libc.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 222AC92C1C72BAD200C72B6C /* libc.tbd */; };
 		222AC92F1C72BADE00C72B6C /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 222AC92E1C72BADE00C72B6C /* libsqlite3.tbd */; };
 		222AC9311C72BAE600C72B6C /* libstdc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 222AC9301C72BAE600C72B6C /* libstdc++.tbd */; };
-		225164CC1D0C3E040021C215 /* call-tone.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 225164CB1D0C3E040021C215 /* call-tone.mp3 */; };
 		225164D01D0C48E40021C215 /* RTCSetting.m in Sources */ = {isa = PBXBuildFile; fileRef = 225164CF1D0C48E40021C215 /* RTCSetting.m */; };
 		228757D61C94D34800E17C8D /* Key.m in Sources */ = {isa = PBXBuildFile; fileRef = 228757D51C94D34800E17C8D /* Key.m */; };
 		228757E41C94D38D00E17C8D /* MicCheck.m in Sources */ = {isa = PBXBuildFile; fileRef = 228757E31C94D38D00E17C8D /* MicCheck.m */; };
 		22A989071D02CAF400DFA3B7 /* libRNDeviceInfo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22A989061D02CAB600DFA3B7 /* libRNDeviceInfo.a */; };
 		22A9892C1D02D42700DFA3B7 /* libWebRTC.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22A989281D02D42700DFA3B7 /* libWebRTC.a */; };
 		22A989301D02D43B00DFA3B7 /* libRCTWebRTC.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22A9892F1D02D42800DFA3B7 /* libRCTWebRTC.a */; };
+		22CA61191D0CA5330085EFAE /* call-tone.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22CA61181D0CA5330085EFAE /* call-tone.mp3 */; };
 		22EBD4871C993D8E00AFEBC8 /* AudioPlayerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 22EBD4841C993D8E00AFEBC8 /* AudioPlayerManager.m */; };
 		22EBD4881C993D8E00AFEBC8 /* AudioRecorderManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 22EBD4861C993D8E00AFEBC8 /* AudioRecorderManager.m */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
@@ -167,7 +167,6 @@
 		222AC92C1C72BAD200C72B6C /* libc.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libc.tbd; path = usr/lib/libc.tbd; sourceTree = SDKROOT; };
 		222AC92E1C72BADE00C72B6C /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		222AC9301C72BAE600C72B6C /* libstdc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libstdc++.tbd"; path = "usr/lib/libstdc++.tbd"; sourceTree = SDKROOT; };
-		225164CB1D0C3E040021C215 /* call-tone.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "call-tone.mp3"; sourceTree = "<group>"; };
 		225164CE1D0C48E40021C215 /* RTCSetting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RTCSetting.h; path = Pear/RTCSetting.h; sourceTree = "<group>"; };
 		225164CF1D0C48E40021C215 /* RTCSetting.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RTCSetting.m; path = Pear/RTCSetting.m; sourceTree = "<group>"; };
 		228757D41C94D34800E17C8D /* Key.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Key.h; path = Pear/Key.h; sourceTree = "<group>"; };
@@ -207,6 +206,7 @@
 		22A989271D02D42700DFA3B7 /* RTCVideoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTCVideoTrack.h; sourceTree = "<group>"; };
 		22A989281D02D42700DFA3B7 /* libWebRTC.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libWebRTC.a; sourceTree = "<group>"; };
 		22A989291D02D42700DFA3B7 /* RCTWebRTC.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTWebRTC.xcodeproj; path = "../node_modules/react-native-webrtc/ios/RCTWebRTC.xcodeproj"; sourceTree = "<group>"; };
+		22CA61181D0CA5330085EFAE /* call-tone.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "call-tone.mp3"; sourceTree = "<group>"; };
 		22EBD4831C993D8E00AFEBC8 /* AudioPlayerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AudioPlayerManager.h; path = "../node_modules/react-native-audio/ios/AudioPlayerManager.h"; sourceTree = "<group>"; };
 		22EBD4841C993D8E00AFEBC8 /* AudioPlayerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AudioPlayerManager.m; path = "../node_modules/react-native-audio/ios/AudioPlayerManager.m"; sourceTree = "<group>"; };
 		22EBD4851C993D8E00AFEBC8 /* AudioRecorderManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AudioRecorderManager.h; path = "../node_modules/react-native-audio/ios/AudioRecorderManager.h"; sourceTree = "<group>"; };
@@ -332,7 +332,7 @@
 		13B07FAE1A68108700A75B9A /* Pear */ = {
 			isa = PBXGroup;
 			children = (
-				225164CB1D0C3E040021C215 /* call-tone.mp3 */,
+				22CA61181D0CA5330085EFAE /* call-tone.mp3 */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
@@ -725,7 +725,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				225164CC1D0C3E040021C215 /* call-tone.mp3 in Resources */,
+				22CA61191D0CA5330085EFAE /* call-tone.mp3 in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
 			);
