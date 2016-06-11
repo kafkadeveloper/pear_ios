@@ -1,0 +1,15 @@
+{
+  "name": "pear_server",
+  "version": "0.1.0",
+  "description": "Pear app node socket.io server",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "socket.io": "1.4.6"
+  },
+  "engines": {
+    "node": "5.4.1"
+  }
+}
