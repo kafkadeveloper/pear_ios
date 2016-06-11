@@ -1,6 +1,8 @@
 # Pear Development
 
 ### TODO
+- calling tone TOO LOUD
+- run with bundle. Test crashing
 - move to Google Cloud
 
 ### Versions

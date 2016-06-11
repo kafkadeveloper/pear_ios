@@ -21,7 +21,6 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		146834051AC3E58100842450 /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 146834041AC3E56700842450 /* libReact.a */; };
-		2203039A1CA187BD006986B0 /* call-tone.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 220303991CA187BD006986B0 /* call-tone.mp3 */; };
 		222AC91F1C72BAA600C72B6C /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 222AC91E1C72BAA600C72B6C /* AVFoundation.framework */; };
 		222AC9211C72BAAB00C72B6C /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 222AC9201C72BAAB00C72B6C /* AudioToolbox.framework */; };
 		222AC9231C72BAB100C72B6C /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 222AC9221C72BAB100C72B6C /* CoreGraphics.framework */; };
@@ -32,6 +31,8 @@
 		222AC92D1C72BAD200C72B6C /* libc.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 222AC92C1C72BAD200C72B6C /* libc.tbd */; };
 		222AC92F1C72BADE00C72B6C /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 222AC92E1C72BADE00C72B6C /* libsqlite3.tbd */; };
 		222AC9311C72BAE600C72B6C /* libstdc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 222AC9301C72BAE600C72B6C /* libstdc++.tbd */; };
+		225164CC1D0C3E040021C215 /* call-tone.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 225164CB1D0C3E040021C215 /* call-tone.mp3 */; };
+		225164D01D0C48E40021C215 /* RTCSetting.m in Sources */ = {isa = PBXBuildFile; fileRef = 225164CF1D0C48E40021C215 /* RTCSetting.m */; };
 		228757D61C94D34800E17C8D /* Key.m in Sources */ = {isa = PBXBuildFile; fileRef = 228757D51C94D34800E17C8D /* Key.m */; };
 		228757E41C94D38D00E17C8D /* MicCheck.m in Sources */ = {isa = PBXBuildFile; fileRef = 228757E31C94D38D00E17C8D /* MicCheck.m */; };
 		22A989071D02CAF400DFA3B7 /* libRNDeviceInfo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22A989061D02CAB600DFA3B7 /* libRNDeviceInfo.a */; };
@@ -156,7 +157,6 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Pear/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Pear/main.m; sourceTree = "<group>"; };
 		146833FF1AC3E56700842450 /* React.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = React.xcodeproj; path = "../node_modules/react-native/React/React.xcodeproj"; sourceTree = "<group>"; };
-		220303991CA187BD006986B0 /* call-tone.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "call-tone.mp3"; sourceTree = "<group>"; };
 		222AC91E1C72BAA600C72B6C /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		222AC9201C72BAAB00C72B6C /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		222AC9221C72BAB100C72B6C /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -167,6 +167,9 @@
 		222AC92C1C72BAD200C72B6C /* libc.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libc.tbd; path = usr/lib/libc.tbd; sourceTree = SDKROOT; };
 		222AC92E1C72BADE00C72B6C /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		222AC9301C72BAE600C72B6C /* libstdc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libstdc++.tbd"; path = "usr/lib/libstdc++.tbd"; sourceTree = SDKROOT; };
+		225164CB1D0C3E040021C215 /* call-tone.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "call-tone.mp3"; sourceTree = "<group>"; };
+		225164CE1D0C48E40021C215 /* RTCSetting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RTCSetting.h; path = Pear/RTCSetting.h; sourceTree = "<group>"; };
+		225164CF1D0C48E40021C215 /* RTCSetting.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RTCSetting.m; path = Pear/RTCSetting.m; sourceTree = "<group>"; };
 		228757D41C94D34800E17C8D /* Key.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Key.h; path = Pear/Key.h; sourceTree = "<group>"; };
 		228757D51C94D34800E17C8D /* Key.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Key.m; path = Pear/Key.m; sourceTree = "<group>"; };
 		228757E21C94D38D00E17C8D /* MicCheck.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MicCheck.h; path = Pear/MicCheck.h; sourceTree = "<group>"; };
@@ -329,10 +332,12 @@
 		13B07FAE1A68108700A75B9A /* Pear */ = {
 			isa = PBXGroup;
 			children = (
-				220303991CA187BD006986B0 /* call-tone.mp3 */,
+				225164CB1D0C3E040021C215 /* call-tone.mp3 */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
+				225164CE1D0C48E40021C215 /* RTCSetting.h */,
+				225164CF1D0C48E40021C215 /* RTCSetting.m */,
 				228757D41C94D34800E17C8D /* Key.h */,
 				228757D51C94D34800E17C8D /* Key.m */,
 				228757E21C94D38D00E17C8D /* MicCheck.h */,
@@ -546,7 +551,7 @@
 								enabled = 1;
 							};
 							com.apple.DataProtection = {
-								enabled = 1;
+								enabled = 0;
 							};
 						};
 					};
@@ -720,7 +725,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2203039A1CA187BD006986B0 /* call-tone.mp3 in Resources */,
+				225164CC1D0C3E040021C215 /* call-tone.mp3 in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
 			);
@@ -758,6 +763,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				225164D01D0C48E40021C215 /* RTCSetting.m in Sources */,
 				228757D61C94D34800E17C8D /* Key.m in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				22EBD4881C993D8E00AFEBC8 /* AudioRecorderManager.m in Sources */,

@@ -13,20 +13,18 @@ import WebRTC, {
   RTCIceCandidate,
   RTCSessionDescription,
   RTCView,
-  RTCSetting,
   MediaStreamTrack,
   getUserMedia,
 } from 'react-native-webrtc';
 import MainView from './view/MainView';
 
-if (!window.navigator.userAgent) {
-  window.navigator.userAgent = 'react-native';
-}
+window.navigator.userAgent = 'react-native';
 
 let io = require('socket.io-client/socket.io');
 let isocountry = require('./js/isocountry');
 let AppKey = NativeModules.Key;
 let MicCheck = NativeModules.MicCheck;
+let RTCSetting = NativeModules.RTCSetting;
 
 /* Permanent storage keys */
 const REV = '38';
@@ -41,7 +39,7 @@ const MIC_ACCESS_NEEDED = 'Pear is a voice communication app. ' +
                           'turn on Microphone Access.';
 
 /* Server */
-const URL = 'https://stark-plains-31370.herokuapp.com/api/webrtc';
+const URL = 'https://stark-plains-31370.herokuapp.com/api/webrtc'; // TODO
 
 /* Set up & Initialize global variables */
 let localStream;
@@ -350,7 +348,7 @@ class Pear extends Component {
     hangup();
   }
 
-  onMuteButtonPressed() {  // TODO
+  onMuteButtonPressed() {
     if (this.state.micMuted) {
       localStream.getAudioTracks()[0].enabled = true;
       this.setState({micMuted: false});

@@ -15,12 +15,11 @@ import * as Animatable from 'react-native-animatable';
 import Swiper from 'react-native-swiper';
 import AboutView from './AboutView';
 
-let {AudioPlayer} = require('react-native-audio');
+let {AudioPlayer, AudioUtils} = require('react-native-audio');
 let analytics = require('../js/analytics');
 let emojiloading = require('../js/emojiloading');
 
 const TRACKING_ID = 'UA-75025059-2';
-const CALLTONE = 'call-tone.mp3';
 const RED = '#ff6169';
 const BLUE = '#26476b';
 const GREY = '#e0e0e0';
@@ -52,13 +51,15 @@ class MainView extends Component {
   }
 
   render() {
-    if (this.props.first)
+    if (this.props.first) {
       return this._renderWelcomeView();
+    }
 
-    if (this.state.calling)
+    if (this.state.calling) {
       return this._renderHangupView();
-    else
+    } else {
       return this._renderCallView();
+    }
   }
 
   /* Render functions */
@@ -264,7 +265,8 @@ class MainView extends Component {
 
   /* Audio functions */
   _callAudioStart() {
-    AudioPlayer.playWithUrl('call-tone.mp3', {numberOfLoops: -1});
+    let audioPath = AudioUtils.MainBundlePath + '/call-tone.mp3';
+    AudioPlayer.play(audioPath, {sessionCategory: 'PlayAndRecord', numberOfLoops: -1});
   }
 
   callAudioStop() {
