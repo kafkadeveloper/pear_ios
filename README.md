@@ -1,7 +1,21 @@
-# Pear Development
+# Pear
 
+## What is Pear?
+### Motivation
+Pear is an iOS app that enables random peer-to-peer voice call. Internet connects everyone in the world, but we rarely connect with people outside our comfort zone. I wanted to connect two people who would have never connected otherwise. The decision to use only voice (no video) was deliberate. My hypothesis was that voice would allow more intimate and honest conversation than text or video. Pear is built with WebRTC, React Native, Node, Express, and Socket.io.
+
+### Demo
+Check out this [video](https://raw.githubusercontent.com/nullicorn/pear_ios/master/screenshots/demo.mp4) to see Pear running on iPhone 6 Plus.
+
+### Screenshots
+Here are some screenshots of Pear.
+![Welcome View](https://raw.githubusercontent.com/nullicorn/pear_ios/master/screenshots/welcome_view.png)
+![Call View](https://raw.githubusercontent.com/nullicorn/pear_ios/master/screenshots/call_view.png)
+![Connecting View](https://raw.githubusercontent.com/nullicorn/pear_ios/master/screenshots/connecting_view.png)
+![Hangup View](https://raw.githubusercontent.com/nullicorn/pear_ios/master/screenshots/hangup_view.png)
+
+## Development Log
 ### TODO
-- calling tone TOO LOUD
 - run with bundle. Test crashing
 - move to Google Cloud
 
@@ -14,9 +28,6 @@
 - Google domain $12.00
 - Heroku $84
 - Apple developer account $100
-
-### Strategy
-
 
 ### Future Features
 - Hashtag -> Trending hashtags -> Notification
@@ -107,12 +118,6 @@
 - [Kurt Weiberth](https://www.youtube.com/watch?v=fZKaq623y38)
 - [React + Electron](https://medium.com/@Agro/developing-desktop-applications-with-electron-and-react-40d117d97564#.nneodagkh)
 - [Course](http://courses.reactjsprogram.com/courses/reactjsfundamentals)
-
-#### Vim
-- [vimrc](https://github.com/amix/vimrc)
-- [dotfiles](https://dotfiles.github.io)
-- [vimwiki](https://github.com/vimwiki/vimwiki)
-- [karabiner](https://pqrs.org/osx/karabiner/)
 
 #### Misc.
 - [https](https://gethttpsforfree.com)
