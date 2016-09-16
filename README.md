@@ -8,7 +8,6 @@ Pear is an iOS app that enables random peer-to-peer voice call. Internet connect
 Check out this [video](https://raw.githubusercontent.com/nullicorn/pear_ios/master/screenshots/demo.mp4) to see Pear running on iPhone 6 Plus.
 
 ### Screenshots
-Here are some screenshots of Pear.
 ![Welcome View](https://raw.githubusercontent.com/nullicorn/pear_ios/master/screenshots/welcome_view.png)
 ![Call View](https://raw.githubusercontent.com/nullicorn/pear_ios/master/screenshots/call_view.png)
 ![Connecting View](https://raw.githubusercontent.com/nullicorn/pear_ios/master/screenshots/connecting_view.png)
