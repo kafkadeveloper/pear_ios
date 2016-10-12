@@ -2,7 +2,7 @@
 
 ## What is Pear?
 ### Motivation
-Pear is an iOS app that enables random peer-to-peer voice call. Internet connects everyone in the world, but we rarely connect with people outside our comfort zone. I wanted to connect two people who would have never connected otherwise. The decision to use only voice (no video) was deliberate. My hypothesis was that voice would allow more intimate and honest conversation than text or video. Pear is built with WebRTC, React Native, Node, Express, and Socket.io.
+Pear is an iOS app that enables random peer-to-peer voice call. Internet connects everyone in the world, but we rarely connect with people outside our comfort zone. I wanted to connect two people who would have never connected otherwise. The decision to use only voice (no video) was deliberate. My hypothesis was that voice would allow more intimate and honest conversation than text or video. Pear is built with these open source technologies: WebRTC, React Native, Node, Express, and Socket.io.
 
 ### Demo
 Check out this [video](https://drive.google.com/file/d/0B-EgUiMokgCmamdiWDJqRnpwRm8/view?usp=sharing) to see Pear running on iPhone 6 Plus.
