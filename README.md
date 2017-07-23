@@ -5,7 +5,7 @@
 iOS app that enables random p2p voice call
 			
 ### Abstract
-Internet connects everyone in the world, but people rarely connect with people outside their comfort zone. Voice-only communication has a unique property that neither text nor video have: it can be both intimate/genuine while being anonymous and safe. There is a lack of social application that utilize voice only communication., and this application explores that area.
+Pear is a secure p2p voice call iOS app. Despite the internet having connected more than 50% of the world population, there is still no way of making serendipitous, genuine connections online. Voice-only communication has a unique property of being both intimate and anonymous. This application explores this area.
 
 ### Technologies
 WebRTC, React Native, Objective-C, Node, ExpressJS, SocketIO, linux
